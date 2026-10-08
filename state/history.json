@@ -1,0 +1,93 @@
+{
+  "live:Mux 测试流": {
+    "ok": 1,
+    "fail": 0,
+    "consecutive_fail": 0,
+    "last_ok": "2026-10-08T17:49:38+00:00",
+    "last_fail": null,
+    "last_latency_ms": 98,
+    "last_items": 5,
+    "recent": [
+      1
+    ],
+    "unverified": false
+  },
+  "live:Apple bipbop": {
+    "ok": 1,
+    "fail": 0,
+    "consecutive_fail": 0,
+    "last_ok": "2026-10-08T17:49:38+00:00",
+    "last_fail": null,
+    "last_latency_ms": 306,
+    "last_items": 24,
+    "recent": [
+      1
+    ],
+    "unverified": false
+  },
+  "site:example_rule": {
+    "ok": 0,
+    "fail": 1,
+    "consecutive_fail": 1,
+    "last_ok": null,
+    "last_fail": "2026-10-08T17:49:38+00:00",
+    "last_latency_ms": 0,
+    "last_items": 0,
+    "recent": [
+      0
+    ],
+    "unverified": false
+  },
+  "parse:示例解析": {
+    "ok": 0,
+    "fail": 1,
+    "consecutive_fail": 1,
+    "last_ok": null,
+    "last_fail": "2026-10-08T17:49:38+00:00",
+    "last_latency_ms": 0,
+    "last_items": 0,
+    "recent": [
+      0
+    ],
+    "unverified": false
+  },
+  "site:example_spider": {
+    "ok": 0,
+    "fail": 1,
+    "consecutive_fail": 1,
+    "last_ok": null,
+    "last_fail": "2026-10-08T17:49:38+00:00",
+    "last_latency_ms": 0,
+    "last_items": 0,
+    "recent": [
+      0
+    ],
+    "unverified": false
+  },
+  "site:example_probe": {
+    "ok": 0,
+    "fail": 1,
+    "consecutive_fail": 1,
+    "last_ok": null,
+    "last_fail": "2026-10-08T17:49:38+00:00",
+    "last_latency_ms": 0,
+    "last_items": 0,
+    "recent": [
+      0
+    ],
+    "unverified": false
+  },
+  "site:example_cms": {
+    "ok": 0,
+    "fail": 1,
+    "consecutive_fail": 1,
+    "last_ok": null,
+    "last_fail": "2026-10-08T17:49:38+00:00",
+    "last_latency_ms": 0,
+    "last_items": 0,
+    "recent": [
+      0
+    ],
+    "unverified": false
+  }
+}

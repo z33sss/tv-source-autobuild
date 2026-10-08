@@ -1,0 +1,100 @@
+{
+  "wallpaper": "https://picsum.photos/1920/1080",
+  "flags": [
+    "qq",
+    "qiyi",
+    "youku",
+    "letv",
+    "sohu",
+    "tudou",
+    "pptv",
+    "mgtv"
+  ],
+  "doh": [
+    {
+      "name": "dns.alidns.com",
+      "url": "https://dns.alidns.com/dns-query",
+      "bootstrap": [
+        "223.5.5.5",
+        "140.210.76.76"
+      ]
+    },
+    {
+      "name": "doh.pub",
+      "url": "https://doh.pub/dns-query",
+      "bootstrap": [
+        "1.12.12.12",
+        "120.53.53.53"
+      ]
+    }
+  ],
+  "sites": [
+    {
+      "key": "example_rule",
+      "name": "示例-规则站",
+      "type": 1,
+      "api": "csp_DemoRule",
+      "ext": "https://demo-rules.example.com/rules/demo.js",
+      "searchable": 1,
+      "quickSearch": 1,
+      "filterable": 0,
+      "changeable": 1
+    },
+    {
+      "key": "example_spider",
+      "name": "示例-蜘蛛站",
+      "type": 6,
+      "api": "csp_DemoSpider",
+      "jar": "https://demo-jars.example.com/custom_spider.jar",
+      "ext": "",
+      "searchable": 1,
+      "quickSearch": 1,
+      "filterable": 1,
+      "changeable": 1
+    },
+    {
+      "key": "example_probe",
+      "name": "示例-自定义探测",
+      "type": 3,
+      "api": "csp_DemoProbe",
+      "probe": {
+        "kind": "cms",
+        "url": "https://demo-probe.example.com/api.php/provide/vod/"
+      },
+      "searchable": 1,
+      "quickSearch": 1,
+      "filterable": 0,
+      "changeable": 1
+    },
+    {
+      "key": "example_cms",
+      "name": "示例-采集站",
+      "type": 0,
+      "api": "https://demo-cms.example.com/api.php/provide/vod/",
+      "searchable": 1,
+      "quickSearch": 1,
+      "filterable": 1,
+      "changeable": 1
+    }
+  ],
+  "parses": [
+    {
+      "name": "示例解析",
+      "type": 0,
+      "url": "https://demo-parse.example.com/api.php/provide/vod/"
+    }
+  ],
+  "lives": [
+    {
+      "name": "Apple bipbop",
+      "type": 0,
+      "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8"
+    },
+    {
+      "name": "Mux 测试流",
+      "type": 0,
+      "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+    }
+  ],
+  "warning": "源已自动更新 · 2026-10-08 17:49:38 UTC · 存活 4/4"
+}
