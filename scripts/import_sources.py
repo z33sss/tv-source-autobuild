@@ -88,11 +88,19 @@ def merge(cfg: dict, incoming: dict, take_spider: bool):
 
 
 def _has_target(section: str, item: dict) -> bool:
-    if section == "sites":
-        return any(is_url(item.get(f)) for f in ("api", "ext", "jar", "url")) or bool(
-            isinstance(item.get("ext"), dict) and is_url((item["ext"] or {}).get("api"))
-        )
-    return is_url(item.get("url"))
+    if section != "sites":
+        return is_url(item.get("url"))
+
+    if any(is_url(item.get(f)) for f in ("api", "ext", "jar", "url")):
+        return True
+
+    ext = item.get("ext")
+    if isinstance(ext, dict) and (is_url(ext.get("api")) or is_url(ext.get("url"))):
+        return True
+
+    # A bare class name like "csp_Foo" is served by the shared spider jar and is
+    # a perfectly valid site (it will be reported as "unverified", never dropped).
+    return bool(item.get("api"))
 
 
 def main(argv=None):

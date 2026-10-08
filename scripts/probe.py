@@ -174,19 +174,26 @@ def probe_cms(url, timeout=10, keyword=None):
     return _result(True, "cms", url, resp, items, detail)
 
 
+TARGET_LABEL = {"cms": "采集", "json": "配置", "play": "播放", "http": "地址"}
+
+
+def _run_target(kind, url, site, settings, timeout):
+    if kind == "cms":
+        return probe_cms(url, timeout, settings.get("keyword"))
+    if kind == "json":
+        return probe_json(url, timeout)
+    if kind == "play":
+        # player gateways answer 200 even with an empty ?url=, so only
+        # reachability is meaningful here.
+        return probe_http(url, timeout, min_bytes=1)
+    return probe_http(url, timeout, expect=site.get("_expect"))
+
+
 def probe_site(site, settings, timeout=10):
     """Probe a `sites` entry. Returns the worst-case result across its URLs."""
-    probes = []
-    for kind, url in _site_targets(site):
-        if kind == "cms":
-            probes.append(probe_cms(url, timeout, settings.get("keyword")))
-        elif kind == "json":
-            probes.append(probe_json(url, timeout))
-        else:
-            markers = site.get("_expect")
-            probes.append(probe_http(url, timeout, expect=markers))
+    targets = list(_site_targets(site))
 
-    if not probes:
+    if not targets:
         # e.g. `api: "csp_Xxx"` served from the shared spider jar - nothing
         # standalone to reach. Keep it, but flag it as unverifiable.
         return {
@@ -195,30 +202,50 @@ def probe_site(site, settings, timeout=10):
             "url": "",
             "latency_ms": 0,
             "items": 0,
+            "targets": [],
             "detail": "unverified (no probe target)",
         }
 
-    failed = [p for p in probes if not p["ok"]]
-    worst_latency = max(p["latency_ms"] for p in probes)
-    items = max(p["items"] for p in probes)
-    key = site.get("key", "?")
+    results = [
+        (label, kind, url, _run_target(kind, url, site, settings, timeout))
+        for kind, url, label in targets
+    ]
+    targets_meta = [
+        {"label": label, "kind": kind, "url": url, "ok": res["ok"]}
+        for label, kind, url, res in results
+    ]
+
+    failed = [r for r in results if not r[3]["ok"]]
+    worst_latency = max(r[3]["latency_ms"] for r in results)
+    items = max(r[3]["items"] for r in results)
+    key = site.get("key") or site.get("name") or "?"
 
     if failed:
+        label, kind, url, res = failed[0]
         return {
             "ok": False,
-            "kind": failed[0]["kind"],
-            "url": failed[0]["url"],
+            "kind": kind,
+            "url": url,
             "latency_ms": worst_latency,
             "items": 0,
-            "detail": f"[{key}] {failed[0]['detail']}",
+            "targets": targets_meta,
+            "detail": f"[{key}] {label} {TARGET_LABEL.get(kind, kind)}失败: {res['detail']}",
         }
+
+    parts = []
+    for label, kind, url, res in results:
+        if kind in ("cms", "json"):
+            parts.append(f"{label} {res['items']}条")
+        else:
+            parts.append(f"{label} ok")
     return {
         "ok": True,
-        "kind": probes[0]["kind"],
-        "url": probes[0]["url"],
+        "kind": results[0][1],
+        "url": results[0][2],
         "latency_ms": worst_latency,
         "items": items,
-        "detail": f"[{key}] " + "; ".join(p["detail"] for p in probes),
+        "targets": targets_meta,
+        "detail": f"[{key}] " + " · ".join(parts),
     }
 
 
@@ -263,44 +290,60 @@ def probe_live(entry, timeout=10):
 # --------------------------------------------------------------------- helpers
 
 
+def _is_vod_api(url) -> bool:
+    """True when a URL looks like an Apple-CMS 采集接口 rather than a plain page."""
+    path = urllib.parse.urlsplit(str(url)).path.lower()
+    return "provide/vod" in path
+
+
 def _site_targets(site):
-    """Yield (kind, url) pairs worth probing for a `sites` entry."""
+    """Yield (kind, url, label) triples worth probing for a `sites` entry."""
     seen = set()
 
-    def emit(kind, url):
+    def emit(kind, url, label):
         if is_url(url) and url not in seen:
             seen.add(url)
-            return (kind, url)
+            return (kind, url, label)
         return None
 
     candidates = []
 
     # Explicit probe spec always wins.
-    probe = site.get("probe") or {}
-    if probe.get("url"):
-        candidates.append((probe.get("kind", "http"), probe["url"], None))
+    spec = site.get("probe") or {}
+    if spec.get("url"):
+        candidates.append((spec.get("kind", "http"), spec["url"], "probe"))
 
     ext = site.get("ext")
     if isinstance(ext, str) and is_url(ext):
-        kind = "json" if ext.lower().split("?")[0].endswith(".json") else "http"
-        candidates.append((kind, ext, None))
+        if _is_vod_api(ext):
+            candidates.append(("cms", ext, "ext"))
+        else:
+            end = ext.lower().split("?")[0]
+            candidates.append(("json" if end.endswith(".json") else "http", ext, "ext"))
     elif isinstance(ext, dict):
         if is_url(ext.get("api")):
-            candidates.append(("cms", ext["api"], None))
+            candidates.append(("cms", ext["api"], "ext.api"))
         if is_url(ext.get("url")):
-            candidates.append(("http", ext["url"], None))
+            candidates.append(("http", ext["url"], "ext.url"))
 
+    # Classify by URL shape first: `type: 1` with a 采集接口 path is still a CMS,
+    # and a `type: 0` site pointing at a plain page is not.
     api = site.get("api")
     if is_url(api):
-        kind = "cms" if site.get("type") in (0, 3, 6) else "http"
-        candidates.append((kind, api, None))
+        kind = "cms" if (site.get("type") in (0, 3, 6) or _is_vod_api(api)) else "http"
+        candidates.append((kind, api, "api"))
 
     jar = site.get("jar")
     if is_url(jar):
-        candidates.append(("http", jar, None))
+        candidates.append(("http", jar, "jar"))
 
-    for kind, url, expect in candidates:
-        out = emit(kind, url)
+    # Per-site player override (recognized by fongmi/TV Site.java).
+    play = site.get("playUrl")
+    if is_url(play):
+        candidates.append(("play", play, "playUrl"))
+
+    for kind, url, label in candidates:
+        out = emit(kind, url, label)
         if out:
             yield out
 

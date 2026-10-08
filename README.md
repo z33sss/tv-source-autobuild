@@ -68,7 +68,8 @@ python scripts/import_sources.py https://example.com/tvbox.json --dry-run   # �
 ```
 
 它会解析 `sites` / `parses` / `lives`，按 `key` / `name` 去重后合并进 `config/sources.json`，
-容忍尾逗号、`//` 与 `/* */` 注释、BOM。**只有能解析出真实探测地址的条目才会被收养**。
+容忍尾逗号、`//` 与 `/* */` 注释、BOM。**有 `api` / `ext` / `jar` / `url` 任意一个地址字段的条目都会被收养**
+（`api: "csp_Xxx"` 这种走公共 jar 的站点也算，它会被标为「无法验证」而不是丢弃）；只有 `playUrl`、或者什么都没有的残缺条目会被跳过。
 
 也可以直接手工编辑 `config/sources.json`（结构见下一节）。
 
@@ -138,9 +139,10 @@ python scripts/autobuild.py --build    # 只用上次的检测结果重新生成
   "key": "demo",
   "name": "演示站",
   "type": 0,                          // 0/3 采集站, 1 规则站, 6 蜘蛛站
-  "api": "https://x.com/api.php/provide/vod/",
+  "api": "https://x.com/api.php/provide/vod/from/xxx/at/json",
   "ext": "...",                       // 字符串 URL 或 {"api": "..."}
   "jar": "https://x.com/custom_spider.jar",
+  "playUrl": "https://x.com/player/?url=",   // 站点级播放器（fongmi/TV Site.java 认这个字段）
   "searchable": 1, "quickSearch": 1, "filterable": 1, "changeable": 1,
 
   "_note": "写给自己的备注，不会进输出",
@@ -156,10 +158,17 @@ python scripts/autobuild.py --build    # 只用上次的检测结果重新生成
 
 | 情况 | 探测方式 |
 | --- | --- |
-| `type` 为 0/3/6 且 `api` 是 URL | **采集站深度验证**：请求 `?ac=list&pg=1` → 要求返回非空条目且不是 HTML；再请求 `?ac=detail&wd=关键词` → 要求真能搜到东西 |
+| `api` 是 URL，且 `type ∈ {0,3,6}` **或**路径含 `provide/vod` | **采集站深度验证**：请求 `?ac=list&pg=1` → 要求返回非空条目且不是 HTML；再请求 `?ac=detail&wd=关键词` → 要求真能搜到东西 |
+| `ext` 是带 `provide/vod` 的 URL | 同上，按采集站深度验证 |
 | `ext` 是 `.json` URL | 下载并要求能解析成带列表的 JSON |
 | `ext` 是其它 URL / `jar` 是 URL | HTTP 探活 + 体积/内容校验（`jar` 太小视为失效） |
+| **`playUrl` 是 URL** | GET 可达性探测（播放器网关带空 `?url=` 也会 200，所以只验可达） |
 | `api` 是 `csp_Xxx` 这种类名、没有任何 URL | **标记为「无法验证」**，永不因检测而被剔除 |
+
+> **分类按 URL 路径判断，不只看 `type`** —— 所以 `type: 1` 配 `.../api.php/provide/vod/...`
+> 这种写法依然会走深度验证，不会退化成只探首页 200。
+
+任何一个字段挂了，整站就判失效；日报的「其它地址」列会精确指出是 `api` / `ext` / `jar` / `playUrl` 里的哪一块挂了。
 
 > 换句话说：**深度验证**针对的是绝大多数的采集站（真正决定“源死没死”的那一层），
 > 而不是只看首页 200。

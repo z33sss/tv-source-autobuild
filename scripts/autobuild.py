@@ -230,6 +230,14 @@ def build_output(cfg, results, history, drop_after):
     return out, all_rows, now
 
 
+def _other_targets(result):
+    """`其它地址` column: every probed field except the primary `api`."""
+    extra = [t for t in (result.get("targets") or []) if t["label"] != "api"]
+    if not extra:
+        return "—"
+    return " · ".join(f"{t['label']} {'✅' if t['ok'] else '❌'}" for t in extra)
+
+
 def write_report(out, rows, now, results):
     save_json(
         REPORT_PATH,
@@ -250,15 +258,15 @@ def write_report(out, rows, now, results):
         f"- 输出文件：`dist/tvbox.json`（{len(out['sites'])} 站点，"
         f"{len(out['parses'])} 解析，{len(out['lives'])} 直播）",
         "",
-        "| 状态 | 名称 | 得分 | 延迟 | 条目 | 说明 |",
-        "| --- | --- | ---: | ---: | ---: | --- |",
+        "| 状态 | 名称 | 得分 | 延迟 | 条目 | 其它地址 | 说明 |",
+        "| --- | --- | ---: | ---: | ---: | --- | --- |",
     ]
     icon = {"alive": "✅", "grace": "🟡", "dead": "❌", "unverified": "❔"}
     for row in sorted(rows, key=lambda r: ({"alive": 0, "unverified": 1, "grace": 2, "dead": 3}[r["status"]], -r["score"])):
         r = row["result"]
         lines.append(
             f"| {icon[row['status']]} {row['status']} | {row['name']} | {row['score']} "
-            f"| {r['latency_ms']}ms | {r['items']} | {r['detail'][:90]} |"
+            f"| {r['latency_ms']}ms | {r['items']} | {_other_targets(r)} | {r['detail'][:120]} |"
         )
 
     misc = sorted((k, v) for k, v in results.items() if k.startswith("misc:"))
