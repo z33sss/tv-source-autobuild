@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "settings": {
+    "_comment": "检测参数",
+    "timeout": 10,
+    "workers": 8,
+    "drop_after": 3,
+    "keyword": "中国",
+    "parse_test_url": "",
+    "parse_test_url_hint": "填一个真实视频详情页地址后，解析接口会做‘能否解出播放地址’的真验证；留空则只做可达性检测"
+  },
+  "app": {
+    "_comment": "这部分会原样写进 dist/tvbox.json 的顶层，按需增删",
+    "spider": "",
+    "wallpaper": "https://picsum.photos/1920/1080",
+    "flags": ["qq", "qiyi", "youku", "letv", "sohu", "tudou", "pptv", "mgtv"],
+    "doh": [
+      { "name": "dns.alidns.com", "url": "https://dns.alidns.com/dns-query", "bootstrap": ["223.5.5.5", "140.210.76.76"] },
+      { "name": "doh.pub", "url": "https://doh.pub/dns-query", "bootstrap": ["1.12.12.12", "120.53.53.53"] }
+    ],
+    "ads": [],
+    "hosts": {},
+    "hide": ""
+  },
+  "sites": [
+    {
+      "_note": "模板 · type 0 采集站（苹果CMS）。把 api 换成你自己的采集接口地址",
+      "key": "example_cms",
+      "name": "示例-采集站",
+      "type": 0,
+      "api": "https://demo-cms.example.com/api.php/provide/vod/",
+      "searchable": 1,
+      "quickSearch": 1,
+      "filterable": 1,
+      "changeable": 1
+    },
+    {
+      "_note": "模板 · type 1 规则站（drpy/DSV）。ext 指向规则文件，检测时会下载并校验",
+      "key": "example_rule",
+      "name": "示例-规则站",
+      "type": 1,
+      "api": "csp_DemoRule",
+      "ext": "https://demo-rules.example.com/rules/demo.js",
+      "searchable": 1,
+      "quickSearch": 1,
+      "filterable": 0,
+      "changeable": 1
+    },
+    {
+      "_note": "模板 · type 3/6 蜘蛛站。jar 指向自定义爬虫包，检测时会校验 jar 可下载",
+      "key": "example_spider",
+      "name": "示例-蜘蛛站",
+      "type": 6,
+      "api": "csp_DemoSpider",
+      "jar": "https://demo-jars.example.com/custom_spider.jar",
+      "ext": "",
+      "searchable": 1,
+      "quickSearch": 1,
+      "filterable": 1,
+      "changeable": 1
+    },
+    {
+      "_note": "模板 · 自定义 probe。不想让脚本猜就直接写死探测方式",
+      "key": "example_probe",
+      "name": "示例-自定义探测",
+      "type": 3,
+      "api": "csp_DemoProbe",
+      "probe": { "kind": "cms", "url": "https://demo-probe.example.com/api.php/provide/vod/" },
+      "searchable": 1,
+      "quickSearch": 1,
+      "filterable": 0,
+      "changeable": 1
+    }
+  ],
+  "parses": [
+    {
+      "_note": "模板 · 解析接口。配置 parse_test_url 后会做深度解出验证",
+      "name": "示例解析",
+      "type": 0,
+      "url": "https://demo-parse.example.com/api.php/provide/vod/"
+    }
+  ],
+  "lives": [
+    {
+      "_note": "公开 HLS 测试流（合法测试素材），用来验证流水线本身",
+      "name": "Mux 测试流",
+      "type": 0,
+      "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+    },
+    {
+      "_note": "Apple 官方 HLS 示例（master playlist）",
+      "name": "Apple bipbop",
+      "type": 0,
+      "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8"
+    }
+  ]
+}

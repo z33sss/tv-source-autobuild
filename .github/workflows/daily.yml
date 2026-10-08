@@ -1,0 +1,74 @@
+name: Daily source check
+
+on:
+  schedule:
+    # 每天 17:37 UTC ≈ 次日 01:37 (UTC+8)
+    - cron: "37 17 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "忽略缓存强制全量重检"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "source-check"
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Deep-check sources and rebuild 接口
+        run: python scripts/autobuild.py
+
+      - name: Commit updated state and output
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A state dist
+
+          if git diff --cached --quiet; then
+            echo "No changes detected."
+            exit 0
+          fi
+
+          git commit -m "chore(sources): daily health check $(date -u +%F)"
+          git push
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy-pages:
+    needs: check
+    runs-on: ubuntu-latest
+    # 仓库未开启 GitHub Pages 时这一步会失败，但不影响前面的检测与提交。
+    # 开启方法：Settings → Pages → Source → GitHub Actions
+    continue-on-error: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
