@@ -30,17 +30,6 @@
   ],
   "sites": [
     {
-      "key": "example_rule",
-      "name": "示例-规则站",
-      "type": 1,
-      "api": "csp_DemoRule",
-      "ext": "https://demo-rules.example.com/rules/demo.js",
-      "searchable": 1,
-      "quickSearch": 1,
-      "filterable": 0,
-      "changeable": 1
-    },
-    {
       "key": "example_spider",
       "name": "示例-蜘蛛站",
       "type": 6,
@@ -50,6 +39,17 @@
       "searchable": 1,
       "quickSearch": 1,
       "filterable": 1,
+      "changeable": 1
+    },
+    {
+      "key": "example_rule",
+      "name": "示例-规则站",
+      "type": 1,
+      "api": "csp_DemoRule",
+      "ext": "https://demo-rules.example.com/rules/demo.js",
+      "searchable": 1,
+      "quickSearch": 1,
+      "filterable": 0,
       "changeable": 1
     },
     {
@@ -86,15 +86,15 @@
   ],
   "lives": [
     {
-      "name": "Apple bipbop",
-      "type": 0,
-      "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8"
-    },
-    {
       "name": "Mux 测试流",
       "type": 0,
       "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+    },
+    {
+      "name": "Apple bipbop",
+      "type": 0,
+      "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8"
     }
   ],
-  "warning": "源已自动更新 · 2026-10-08 17:49:38 UTC · 存活 4/4"
+  "warning": "源已自动更新 · 2026-10-09 17:48:02 UTC · 存活 4/4"
 }
