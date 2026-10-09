@@ -16,10 +16,33 @@
     "_comment": "这部分会原样写进 dist/tvbox.json 的顶层，按需增删",
     "spider": "",
     "wallpaper": "https://picsum.photos/1920/1080",
-    "flags": ["qq", "qiyi", "youku", "letv", "sohu", "tudou", "pptv", "mgtv"],
+    "flags": [
+      "qq",
+      "qiyi",
+      "youku",
+      "letv",
+      "sohu",
+      "tudou",
+      "pptv",
+      "mgtv"
+    ],
     "doh": [
-      { "name": "dns.alidns.com", "url": "https://dns.alidns.com/dns-query", "bootstrap": ["223.5.5.5", "140.210.76.76"] },
-      { "name": "doh.pub", "url": "https://doh.pub/dns-query", "bootstrap": ["1.12.12.12", "120.53.53.53"] }
+      {
+        "name": "dns.alidns.com",
+        "url": "https://dns.alidns.com/dns-query",
+        "bootstrap": [
+          "223.5.5.5",
+          "140.210.76.76"
+        ]
+      },
+      {
+        "name": "doh.pub",
+        "url": "https://doh.pub/dns-query",
+        "bootstrap": [
+          "1.12.12.12",
+          "120.53.53.53"
+        ]
+      }
     ],
     "ads": [],
     "hosts": {},
@@ -68,7 +91,10 @@
       "name": "示例-自定义探测",
       "type": 3,
       "api": "csp_DemoProbe",
-      "probe": { "kind": "cms", "url": "https://demo-probe.example.com/api.php/provide/vod/" },
+      "probe": {
+        "kind": "cms",
+        "url": "https://demo-probe.example.com/api.php/provide/vod/"
+      },
       "searchable": 1,
       "quickSearch": 1,
       "filterable": 0,

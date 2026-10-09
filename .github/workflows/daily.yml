@@ -57,6 +57,12 @@ jobs:
           git commit -m "chore(sources): daily health check $(date -u +%F)"
           git push
 
+      # 编辑器只作为 Pages 产物发布，不入库（dist/editor 不会被 git add 到）
+      - name: Stage editor for Pages
+        run: |
+          rm -rf dist/editor
+          cp -r editor dist/editor
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

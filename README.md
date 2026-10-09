@@ -5,7 +5,9 @@
 你只需要把一个 URL 粘贴进 APK，剩下的交给 GitHub Actions。
 
 ```
-config/upstreams.json 你订阅的上游接口清单
+editor/index.html   网页编辑器（表单/批量粘贴 → Contents API 提交）      ← 可选，自己加源用
+        │
+config/upstreams.json 你订阅的上游接口清单                              ← 可选，每日自动拉取
         │
         ▼
 scripts/sync_upstream.py   拉取 → 识别格式 → 去重合并（打 _from 标记）
@@ -20,6 +22,8 @@ scripts/autobuild.py  深度验证（三闸门） → 更新历史 → 打分 �
         ├── state/report.json     本次检测原始结果
         └── dist/tvbox.json       ★ 给 APK 用的接口文件
             dist/report.md        人读的日报
+            dist/report.json      体检结果（编辑器同源读取）
+            dist/editor/          编辑器（仅作 Pages 产物，不入库）
         │
         ▼
 .github/workflows/daily.yml   每天定时跑 + commit + 发布到 GitHub Pages
@@ -119,7 +123,39 @@ python scripts/sync_upstream.py --only 名字    # 只同步某一个
 流水线里的顺序是 **sync → 深度体检 → 提交**，所以**上游塞进来的死源当次就会被闸门拦住，
 连续 3 天不活才被踢出输出**——同步只管搬运，取舍交给已有的体检。
 
-### 4. 本地跑一次
+### 4. 网页编辑器（加源不用改文件）
+
+仓库自带一个静态编辑器，跑在 GitHub Pages 上：
+
+```
+https://<你的用户名>.github.io/<仓库名>/editor/
+```
+
+| 你要做的 | 说明 |
+| --- | --- |
+| **Settings → Pages → Source → GitHub Actions** | 不开 Pages 就没有这个地址（体检、提交仍然正常，只是编辑器打不开） |
+| **生成 fine-grained PAT** | 只勾这一个仓库，`Contents: Read and write`；要让编辑器提交后自动重检，再加 `Actions: write` |
+| 粘一次 token → 验证 | 默认存在 `sessionStorage`（关标签页即失效），勾了「记住这台设备」才写 `localStorage` |
+
+编辑器能做三件事：
+
+- **单条表单** —— `sites` / `parses` / `lives` 三个分区都有对应字段，`type` 是下拉，`key` 留空会从 URL 自动派生；
+- **批量粘贴** —— 一行一个 URL、一行一个 JSON 对象，或者整段粘 `{"sites":[…]}` 自动拆分区；
+  勾上「自动归类」时 `.m3u8` 会自动进直播、其余进当前分区；
+- **删除** —— 已收录列表每行的 ✕ 标记移除，再点一次 ↺ 撤回。
+
+所有改动先落到**待提交 diff** 预览（新增 / 删除 / 跳过原因一目了然，可展开看最终 JSON），
+确认后走 GitHub Contents API 提交 `config/sources.json`，可选**顺手触发一次 `Daily source check`**，
+一两分钟后左侧「上次体检」就会刷新。
+
+写入内容是**规范 JSON**（`JSON.stringify(…, null, 2)` + LF），与 `scripts/lib.py::save_json`
+产出的 `json.dump(..., ensure_ascii=False, indent=2)` **逐字节一致**，所以编辑器提交后
+Actions 再改这个文件不会产生无谓的格式 diff。
+
+> 编辑器是纯静态单文件，**不引任何第三方脚本**；token 只发给 `api.github.com`。
+> 毕竟凭证在浏览器里，别在公共电脑上勾「记住」。
+
+### 5. 本地跑一次
 
 ```bash
 python scripts/autobuild.py            # 检测 + 生成
@@ -131,7 +167,7 @@ python scripts/autobuild.py --build    # 只用上次的检测结果重新生成
 
 > 本机没有 Python 也可以：把仓库推上去后直接在 **Actions → Daily source check → Run workflow** 手动跑一次。
 
-### 5. 打开自动化
+### 6. 打开自动化
 
 1. **Settings → Actions → General → Workflow permissions** → 选 *Read and write permissions*（否则 commit 会被拒）。
 2. **Settings → Pages → Source** → 选 **GitHub Actions**（否则 Pages 部署那步会报错）。
@@ -301,7 +337,8 @@ vod_play_url "标题$链接#标题$链接$$$线路2$..."
 2. 跑 `python scripts/sync_upstream.py`（拉上游，没配订阅就直接跳过）。
 3. 跑 `python scripts/autobuild.py`（三闸门深度检测 + 生成）。
 4. 把 `state/`、`dist/`、`config/` 的变化 commit 回仓库（带当天日报）。
-5. 把 `dist/` 发布到 GitHub Pages → 你就有了稳定的 `tvbox.json` 地址。
+5. 把 `editor/` 复制进 `dist/editor/`（**只作为 Pages 产物，不入库**），再连同 `dist/` 一起发布 →
+   你就有了稳定的 `tvbox.json` 地址，以及 `/editor/` 配置编辑器。
 6. 日报同时写进 Actions 的 **Summary**。
 
 想要更高频？把 `cron` 改成每 6 小时一次即可（同一 repo 的 schedule 任务最少间隔 5 分钟，

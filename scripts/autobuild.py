@@ -245,16 +245,12 @@ def _other_targets(result):
 
 
 def write_report(out, rows, now, results):
-    save_json(
-        REPORT_PATH,
-        {
-            "generated_at": now,
-            "counts": _counts(rows),
-            "results": results,
-        },
-    )
-
     counts = _counts(rows)
+    payload = {"generated_at": now, "counts": counts, "results": results}
+    save_json(REPORT_PATH, payload)
+    # 同一份结果也放进 dist/ —— 编辑器（GitHub Pages 同源）靠它展示体检结论
+    save_json(DIST_DIR / "report.json", payload)
+
     lines = [
         "# 影视源每日检测报告",
         "",

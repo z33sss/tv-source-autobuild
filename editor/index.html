@@ -1,0 +1,1095 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>影视源配置编辑器</title>
+<style>
+:root{
+  --bg:#0e1116; --bg2:#151a22; --bg3:#1c232e; --line:#2a3341;
+  --fg:#d8e0ea; --fg2:#8b98a9; --fg3:#5f6b7c;
+  --acc:#4c9aff; --ok:#3fb950; --warn:#d29922; --err:#f85149; --add:#2ea043;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--bg);color:var(--fg);
+  font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;
+}
+a{color:var(--acc)}
+button{font:inherit;cursor:pointer}
+input,select,textarea,button{font:inherit}
+input[type=text],input[type=password],select,textarea{
+  width:100%;background:var(--bg);color:var(--fg);
+  border:1px solid var(--line);border-radius:6px;padding:7px 9px;outline:none;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(76,154,255,.16)}
+textarea{resize:vertical;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12.5px;line-height:1.55}
+label{display:block}
+.hint{color:var(--fg3);font-size:11.5px;line-height:1.5}
+code{background:var(--bg3);border:1px solid var(--line);border-radius:4px;padding:1px 5px;
+  font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px}
+
+/* ---------------- header ---------------- */
+header{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:10px 18px;background:var(--bg2);border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:20;
+}
+header h1{margin:0;font-size:16px;font-weight:650;letter-spacing:.3px}
+header .repo{color:var(--fg2);font-size:12.5px}
+header .spacer{flex:1}
+.badge{font-size:11.5px;padding:3px 9px;border-radius:99px;border:1px solid var(--line);
+  background:var(--bg3);color:var(--fg2);white-space:nowrap}
+.badge.on{color:var(--ok);border-color:rgba(63,185,80,.4);background:rgba(63,185,80,.1)}
+.badge.off{color:var(--fg3)}
+
+/* ---------------- layout ---------------- */
+.layout{display:flex;align-items:flex-start;min-height:calc(100% - 49px)}
+aside{
+  width:294px;flex:0 0 294px;padding:16px 14px 40px;
+  border-right:1px solid var(--line);background:var(--bg2);
+  position:sticky;top:49px;height:calc(100vh - 49px);overflow-y:auto;
+}
+main{flex:1;min-width:0;padding:16px 18px 60px}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:12px;margin-bottom:13px}
+.card h3{margin:0 0 9px;font-size:12px;font-weight:650;color:var(--fg2);
+  text-transform:uppercase;letter-spacing:.7px}
+.card h3 .ic{margin-right:5px;text-transform:none}
+.row{display:flex;gap:7px;align-items:center;margin-top:8px}
+.row>*{flex:1}
+.row>.nogrow{flex:0 0 auto}
+
+/* ---------------- buttons ---------------- */
+.btn{padding:7px 13px;border-radius:6px;border:1px solid var(--line);
+  background:var(--bg3);color:var(--fg)}
+.btn:hover{border-color:#3b4757;background:#212a37}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--acc);border-color:var(--acc);color:#04121f;font-weight:650}
+.btn.primary:hover{background:#69a9ff}
+.btn.good{background:var(--add);border-color:var(--add);color:#fff;font-weight:650}
+.btn.good:hover{background:#3fb357}
+.btn.danger{color:var(--err);border-color:rgba(248,81,73,.4)}
+.btn.sm{padding:5px 10px;font-size:12.5px}
+.btn.block{display:block;width:100%;margin-top:8px}
+
+/* ---------------- tabs ---------------- */
+.tabs{display:flex;gap:5px;border-bottom:1px solid var(--line);margin-bottom:15px}
+.tab{padding:8px 17px;background:none;border:none;border-bottom:2px solid transparent;
+  color:var(--fg2);border-radius:0}
+.tab:hover{color:var(--fg)}
+.tab.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:650}
+.tab .n{font-size:11.5px;color:var(--fg3);margin-left:6px}
+.tab.on .n{color:var(--acc)}
+
+.grid{display:grid;grid-template-columns:minmax(320px,1fr) minmax(320px,1fr);gap:15px}
+@media(max-width:1150px){.grid{grid-template-columns:1fr}}
+.pane{background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:14px}
+.pane h4{margin:0 0 11px;font-size:13px;font-weight:650;color:var(--fg)}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:9px 11px}
+.f{min-width:0}
+.f.full{grid-column:1/-1}
+.f label{font-size:11.5px;color:var(--fg2);margin-bottom:3px}
+.f label .req{color:var(--err)}
+.f .hint{margin-top:3px}
+.flags{display:flex;flex-wrap:wrap;gap:10px;padding-top:4px}
+.flag{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--fg2);cursor:pointer}
+.flag input{accent-color:var(--acc);width:14px;height:14px}
+
+/* ---------------- existing list ---------------- */
+.list{margin-top:6px;border-top:1px solid var(--line);padding-top:9px;max-height:270px;overflow-y:auto}
+.item{display:flex;gap:9px;align-items:flex-start;padding:6px 7px;border-radius:6px}
+.item:hover{background:var(--bg3)}
+.item .nm{font-weight:600;font-size:13px;flex:0 0 auto;max-width:42%;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.item .ur{flex:1;min-width:0;color:var(--fg3);font-size:11.5px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;font-family:ui-monospace,monospace}
+.item .x{flex:0 0 auto;background:none;border:none;color:var(--fg3);padding:0 4px;font-size:15px;line-height:1}
+.item .x:hover{color:var(--err)}
+.item.gone{opacity:.4}
+.item.gone .nm{text-decoration:line-through}
+
+/* ---------------- diff table ---------------- */
+.section-title{display:flex;align-items:center;gap:9px;margin:20px 0 9px}
+.section-title h2{margin:0;font-size:14px;font-weight:650}
+.section-title .hint{margin:0}
+table{width:100%;border-collapse:collapse;background:var(--bg2);
+  border:1px solid var(--line);border-radius:9px;overflow:hidden;font-size:13px}
+th,td{text-align:left;padding:7px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--bg3);color:var(--fg2);font-size:11.5px;font-weight:650;
+  text-transform:uppercase;letter-spacing:.5px}
+tr:last-child td{border-bottom:none}
+td.id{font-family:ui-monospace,monospace;font-size:12.5px}
+td.url{color:var(--fg3);font-size:11.5px;font-family:ui-monospace,monospace;
+  word-break:break-all;max-width:340px}
+.act{font-size:11.5px;padding:2px 8px;border-radius:99px;white-space:nowrap;
+  border:1px solid transparent}
+.act.add{color:#fff;background:var(--add)}
+.act.del{color:#fff;background:var(--err)}
+.act.skip{color:var(--fg2);background:var(--bg3);border-color:var(--line)}
+.act.bad{color:#fff;background:var(--warn)}
+.empty{color:var(--fg3);font-size:13px;padding:14px;text-align:center;
+  background:var(--bg2);border:1px dashed var(--line);border-radius:9px}
+
+/* ---------------- footer bar ---------------- */
+.commitbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+  margin-top:18px;padding:13px 15px;background:var(--bg2);
+  border:1px solid var(--line);border-radius:9px}
+.commitbar .grow{flex:1;min-width:200px}
+.log{margin-top:12px;padding:11px 13px;border-radius:8px;font-size:13px;
+  background:var(--bg2);border:1px solid var(--line);display:none;white-space:pre-wrap;word-break:break-word}
+.log.show{display:block}
+.log.err{border-color:rgba(248,81,73,.45);color:#ffb3ae}
+.log.ok{border-color:rgba(63,185,80,.45);color:#9be8ac}
+
+/* ---------------- report ---------------- */
+.rpt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:9px}
+.rpt-c{background:var(--bg3);border:1px solid var(--line);border-radius:7px;
+  padding:7px 4px;text-align:center}
+.rpt-c b{display:block;font-size:19px;line-height:1.25}
+.rpt-c span{font-size:11px;color:var(--fg3)}
+.rpt-c.ok b{color:var(--ok)} .rpt-c.gr b{color:var(--warn)}
+.rpt-c.dead b{color:var(--err)} .rpt-c.unv b{color:var(--fg2)}
+.rpt-list{font-size:12px;max-height:210px;overflow-y:auto}
+.rpt-list div{display:flex;gap:7px;padding:3px 0;border-bottom:1px solid var(--line)}
+.rpt-list div:last-child{border-bottom:none}
+.rpt-list .st{flex:0 0 auto}
+.rpt-list .who{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rpt-list .dt{flex:0 0 44%;color:var(--fg3);font-size:11px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;text-align:right}
+
+/* ---------------- toast ---------------- */
+#toasts{position:fixed;right:16px;bottom:16px;z-index:99;display:flex;
+  flex-direction:column;gap:8px;max-width:400px}
+.toast{padding:10px 14px;border-radius:8px;font-size:13px;background:var(--bg3);
+  border:1px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.5);animation:in .18s ease}
+.toast.ok{border-color:rgba(63,185,80,.5)}
+.toast.err{border-color:rgba(248,81,73,.5)}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:currentColor;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.warnbox{background:rgba(210,153,34,.1);border:1px solid rgba(210,153,34,.35);
+  color:#f0d48a;border-radius:7px;padding:8px 10px;font-size:12px;margin-top:9px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎬 影视源配置编辑器</h1>
+  <span class="repo" id="repoLabel">—</span>
+  <span class="spacer"></span>
+  <span class="badge off" id="connBadge">未连接</span>
+  <span class="badge off" id="fileBadge">未加载</span>
+</header>
+
+<div class="layout">
+  <!-- ================= sidebar ================= -->
+  <aside>
+    <div class="card">
+      <h3><span class="ic">🔑</span>连接 GitHub</h3>
+      <label class="hint" style="margin-bottom:4px">Fine-grained PAT</label>
+      <input type="password" id="token" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
+      <div class="row">
+        <button class="btn sm" id="btnVerify">验证</button>
+        <button class="btn sm" id="btnShow">显示</button>
+        <button class="btn sm danger" id="btnClear">清除</button>
+      </div>
+      <label class="flag" style="margin-top:9px">
+        <input type="checkbox" id="remember"><span>记住在这台设备（写入 localStorage）</span>
+      </label>
+      <div class="hint" style="margin-top:7px">
+        建议开一个 <b>fine-grained</b> token：只勾这一个仓库，
+        <code>Contents: Read and write</code>（要顺手触发重检再加 <code>Actions: write</code>）。
+        不勾「记住」就只存在本标签页里，关掉即失效。
+      </div>
+      <div class="hint" style="margin-top:7px;color:#f0d48a">
+        ⚠️ 这个页面不引任何第三方脚本，但 token 毕竟在浏览器里，别在公共电脑上保存。
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="ic">📂</span>文件</h3>
+      <div class="hint" style="margin-bottom:8px"><code>config/sources.json</code></div>
+      <button class="btn sm block" id="btnReload">重新加载</button>
+      <button class="btn sm block" id="btnDownload">下载到本地</button>
+      <button class="btn sm block" id="btnDiscard">放弃未提交的改动</button>
+    </div>
+
+    <div class="card">
+      <h3><span class="ic">📊</span>上次体检</h3>
+      <div id="reportBox" class="hint">读取中…</div>
+      <button class="btn sm block" id="btnReport">刷新体检结果</button>
+      <label class="flag" style="margin-top:9px">
+        <input type="checkbox" id="triggerRun" checked><span>提交后立即触发一次深检</span>
+      </label>
+    </div>
+
+    <div class="card">
+      <h3><span class="ic">📖</span>怎么用</h3>
+      <div class="hint">
+        1. 填 PAT → 验证<br>
+        2. 左边填一条，或右边批量粘贴<br>
+        3. 底部看 diff → <b>提交到仓库</b><br>
+        4. Actions 跑完自动剔除死源、重新排序
+      </div>
+      <div class="hint" style="margin-top:8px">
+        提交只是写进<b>候选池</b>，真正生效要等三闸门体检通过。
+        死源会被自动踢出输出，但不会从这里删掉。
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= main ================= -->
+  <main>
+    <div class="tabs" id="tabs"></div>
+
+    <div class="grid">
+      <div class="pane">
+        <h4 id="formTitle">➕ 添加一条</h4>
+        <div class="fields" id="formFields"></div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn good" id="btnAdd" style="flex:1">加入待提交</button>
+          <button class="btn" id="btnReset" style="flex:0 0 auto">清空表单</button>
+        </div>
+      </div>
+
+      <div class="pane">
+        <h4>📋 批量粘贴</h4>
+        <div class="hint" style="margin-bottom:7px">
+          一行一个 <b>URL</b> 或一行一个 <b>JSON 对象</b>；也可以整段粘
+          <code>{"sites":[…]}</code>，会自动拆到对应分区。支持尾逗号和 <code>//</code> 注释。
+        </div>
+        <textarea id="bulk" rows="11" spellcheck="false"
+          placeholder="https://example.com/api.php/provide/vod/&#10;https://example.com/live.m3u8&#10;{&quot;key&quot;:&quot;demo&quot;,&quot;name&quot;:&quot;演示&quot;,&quot;type&quot;:0,&quot;api&quot;:&quot;https://…&quot;}"></textarea>
+        <div class="row">
+          <label class="flag"><input type="checkbox" id="autoClassify" checked>
+            <span>自动归类（.m3u8→直播，其余→当前分区）</span></label>
+        </div>
+        <div class="row">
+          <button class="btn good" id="btnBulk" style="flex:1">解析并加入待提交</button>
+          <button class="btn" id="btnBulkClear" style="flex:0 0 auto">清空</button>
+        </div>
+        <div class="hint" id="bulkMsg" style="margin-top:8px"></div>
+
+        <div class="list" id="existing"></div>
+      </div>
+    </div>
+
+    <!-- diff -->
+    <div class="section-title">
+      <h2>📝 待提交</h2>
+      <span class="hint" id="diffHint">还没有改动</span>
+      <span style="flex:1"></span>
+      <button class="btn sm" id="btnPreview">查看将写入的 JSON</button>
+    </div>
+    <div id="diffBox"><div class="empty">左侧添加源后，这里会显示将要写进 <code>config/sources.json</code> 的改动。</div></div>
+    <div class="log" id="previewBox"></div>
+
+    <div class="commitbar">
+      <div class="grow">
+        <div style="font-weight:650" id="commitSummary">无待提交改动</div>
+        <div class="hint" id="commitSub">添加或删除条目后可提交</div>
+      </div>
+      <button class="btn primary" id="btnCommit" disabled>提交到仓库</button>
+    </div>
+
+    <div class="log" id="log"></div>
+  </main>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+"use strict";
+
+/* ====================================================================== utils */
+const $ = (id) => document.getElementById(id);
+const OWNER = "z33sss", REPO = "tv-source-autobuild", BRANCH = "main";
+const CFG_PATH = "config/sources.json";
+
+function toast(msg, kind) {
+  const d = document.createElement("div");
+  d.className = "toast " + (kind || "");
+  d.textContent = msg;
+  $("toasts").appendChild(d);
+  setTimeout(() => d.remove(), 5200);
+}
+function setLog(msg, kind) {
+  const l = $("log");
+  l.textContent = msg;
+  l.className = "log show " + (kind || "");
+}
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"]/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+function b64encode(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = "";
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+function b64decode(b64) {
+  const bin = atob(String(b64).replace(/\s/g, ""));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+function isUrl(v) {
+  return typeof v === "string" && /^https?:\/\/\S+$/i.test(v.trim());
+}
+function clean(v) {
+  return (typeof v === "string") ? v.trim() : v;
+}
+function getPath(obj, path) {
+  return path.split(".").reduce((o, k) => (o == null ? undefined : o[k]), obj);
+}
+function setPath(obj, path, val) {
+  const keys = path.split(".");
+  const last = keys.pop();
+  let o = obj;
+  for (const k of keys) {
+    if (typeof o[k] !== "object" || o[k] === null) o[k] = {};
+    o = o[k];
+  }
+  if (val === "" || val === null || val === undefined) delete o[last];
+  else o[last] = val;
+}
+const NON_KEY = /[^a-z0-9\u4e00-\u9fa5]+/g;
+function slugFromUrl(u) {
+  const url = new URL(u.trim());
+  const host = url.hostname.replace(/^www\./, "");
+  const seg = url.pathname.split("/").filter(Boolean).pop() || "";
+  const raw = (host + "_" + seg).replace(/\.(m3u8|m3u|json|js|jar|php|xml|html?|ts)$/i, "");
+  return raw.replace(NON_KEY, "_").replace(/^_+|_+$/g, "").slice(0, 40);
+}
+function slugify(s) {
+  if (isUrl(s)) {
+    try { return slugFromUrl(s) || "src"; } catch (e) { /* fall through */ }
+  }
+  return String(s || "").toLowerCase().replace(NON_KEY, "_")
+    .replace(/^_+|_+$/g, "").slice(0, 40) || "src";
+}
+function uniqKey(cfg, section, base) {
+  const have = new Set((cfg[section] || []).map((e) => String(idOf(section, e) || "")));
+  if (!have.has(base)) return base;
+  for (let i = 2; i < 500; i++) {
+    const k = base + "_" + i;
+    if (!have.has(k)) return k;
+  }
+  return base + "_" + Date.now();
+}
+function idOf(section, e) {
+  if (!e || typeof e !== "object") return "";
+  return String(e[SECTION_KEYS[section]] || e.name || e.key || "");
+}
+const SECTION_KEYS = { sites: "key", parses: "name", lives: "name" };
+
+/* =============================================================== section defs */
+const SECTIONS = {
+  sites: {
+    tab: "🖥️ 站点", short: "站点", unit: "站点", id: "key",
+    bulkHint: "URL → 站点（type 0）；.m3u8 → 直播；JSON 按字段判定",
+    fields: [
+      { p: "key", label: "key", ph: "留空自动从 URL 生成", hint: "唯一标识，去重靠它" },
+      { p: "name", label: "name", ph: "显示名称", req: true },
+      { p: "type", label: "type", kind: "select", def: 0,
+        opts: [["0", "0 · 采集站（苹果CMS）"], ["1", "1 · 规则站（drpy/DSV）"],
+               ["3", "3 · 自定义探测"], ["6", "6 · 蜘蛛站（自定义 jar）"]] },
+      { p: "api", label: "api", ph: "https://…/api.php/provide/vod/ 或 csp_Xxx", full: true,
+        hint: "URL 走三闸门深度验证；csp_ 类名则标为「无法验证」" },
+      { p: "playUrl", label: "playUrl", ph: "https://…/player/?url=", full: true },
+      { p: "ext", label: "ext", ph: "规则文件 / 接口 JSON 的 URL" },
+      { p: "jar", label: "jar", ph: "custom_spider.jar 的 URL" },
+      { p: "probe.kind", label: "probe.kind", kind: "select", def: "",
+        opts: [["", "（自动推断）"], ["cms", "cms · 采集站"], ["http", "http · 探活"],
+               ["json", "json · 规则/接口"], ["m3u8", "m3u8 · 播放列表"]] },
+      { p: "probe.url", label: "probe.url", ph: "写死探测地址（可选）" },
+      { p: "flags", label: "能力开关", kind: "flags", full: true,
+        def: ["searchable", "quickSearch", "filterable", "changeable"],
+        opts: [["searchable", "可搜索"], ["quickSearch", "快捷搜索"],
+               ["filterable", "可筛选"], ["changeable", "可切换"]] },
+      { p: "_note", label: "_note", ph: "给自己的备注（不会写进输出）", full: true },
+    ],
+  },
+  parses: {
+    tab: "🔗 解析", short: "解析", unit: "解析", id: "name",
+    bulkHint: "JSON 对象 {name, type, url}",
+    fields: [
+      { p: "name", label: "name", ph: "显示名称", req: true },
+      { p: "type", label: "type", kind: "select", def: 0,
+        opts: [["0", "0 · json"], ["1", "1 · 聚合"]] },
+      { p: "url", label: "url", ph: "https://…/parse?url=", full: true, req: true,
+        hint: "地址以 url= 结尾时，配好 parse_test_url 就能做「真解出」验证" },
+      { p: "ext", label: "ext", ph: "扩展参数（可选）", full: true },
+      { p: "_note", label: "_note", ph: "备注", full: true },
+    ],
+  },
+  lives: {
+    tab: "📺 直播", short: "直播", unit: "直播", id: "name",
+    bulkHint: "一行一个 .m3u8 地址",
+    fields: [
+      { p: "name", label: "name", ph: "显示名称", req: true },
+      { p: "type", label: "type", kind: "select", def: 0,
+        opts: [["0", "0 · m3u8"], ["1", "1 · 点播"]] },
+      { p: "url", label: "url", ph: "https://…/live.m3u8", full: true, req: true,
+        hint: "下载播放列表，要求 #EXTM3U 开头" },
+      { p: "_note", label: "_note", ph: "备注", full: true },
+    ],
+  },
+};
+
+/* ===================================================================== state */
+const S = {
+  token: "", remember: false,
+  cfg: null, sha: null,
+  pending: { sites: [], parses: [], lives: [] },
+  removing: { sites: new Set(), parses: new Set(), lives: new Set() },
+  section: "sites",
+  report: null,
+};
+
+/* ============================================================ github api call */
+async function api(path, opts) {
+  opts = opts || {};
+  const headers = { Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" };
+  if (S.token) headers.Authorization = "Bearer " + S.token;
+  if (opts.body) headers["Content-Type"] = "application/json";
+  const r = await fetch("https://api.github.com" + path, {
+    method: opts.method || "GET", headers, body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  const text = await r.text();
+  let data = null;
+  try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
+  return { status: r.status, ok: r.ok, data };
+}
+
+async function verifyToken() {
+  if (!S.token) { toast("先填 token", "err"); return false; }
+  const r = await api("/repos/" + OWNER + "/" + REPO);
+  if (!r.ok) {
+    const msg = (r.data && r.data.message) || ("HTTP " + r.status);
+    setLog("验证失败：" + msg + (r.status === 401 ? "\n→ token 无效或已过期" :
+      r.status === 404 ? "\n→ 找不到仓库，或 token 没有这个仓库的权限" : ""), "err");
+    $("connBadge").className = "badge off";
+    $("connBadge").textContent = "验证失败";
+    return false;
+  }
+  const perm = (r.data.permissions || {});
+  const canWrite = !!(perm.push || perm.maintain || perm.admin);
+  $("connBadge").className = canWrite ? "badge on" : "badge off";
+  $("connBadge").textContent = canWrite ? "已连接 · 可写" : "已连接 · 只读";
+  if (!canWrite) {
+    setLog("token 有效，但对这个仓库是只读的。\n→ 需要 Contents: Read and write 权限才能提交。", "err");
+    return false;
+  }
+  setLog("✓ 已连接 " + OWNER + "/" + REPO + "（可写）", "ok");
+  return true;
+}
+
+async function loadConfig(silent) {
+  const r = await api("/repos/" + OWNER + "/" + REPO + "/contents/" + CFG_PATH + "?ref=" + BRANCH);
+  if (!r.ok) {
+    const m = (r.data && r.data.message) || ("HTTP " + r.status);
+    if (!silent) setLog("读取 " + CFG_PATH + " 失败：" + m +
+      (S.token ? "" : "\n→ 需要先填 token 才能读取仓库文件"), "err");
+    return false;
+  }
+  try {
+    S.cfg = JSON.parse(b64decode(r.data.content));
+    S.sha = r.data.sha;
+    S.pending = { sites: [], parses: [], lives: [] };
+    S.removing = { sites: new Set(), parses: new Set(), lives: new Set() };
+    $("fileBadge").className = "badge on";
+    $("fileBadge").textContent = "已加载";
+    renderAll();
+    if (!silent) toast("已加载 " + CFG_PATH, "ok");
+    return true;
+  } catch (e) {
+    setLog("解析失败：" + e.message, "err");
+    return false;
+  }
+}
+
+async function commitConfig(message) {
+  const latest = await api("/repos/" + OWNER + "/" + REPO + "/contents/" + CFG_PATH + "?ref=" + BRANCH);
+  if (!latest.ok) throw new Error("读取最新 sha 失败：" + ((latest.data && latest.data.message) || latest.status));
+  const body = JSON.stringify(S.cfg, null, 2) + "\n";
+  const w = await api("/repos/" + OWNER + "/" + REPO + "/contents/" + CFG_PATH, {
+    method: "PUT",
+    body: { message, content: b64encode(body), sha: latest.data.sha, branch: BRANCH },
+  });
+  if (!w.ok) throw new Error("提交失败：" + JSON.stringify(w.data).slice(0, 400));
+  S.sha = w.data.content && w.data.content.sha;
+  return w.data;
+}
+
+async function triggerRun() {
+  const r = await api("/repos/" + OWNER + "/" + REPO + "/actions/workflows/daily.yml/dispatches", {
+    method: "POST", body: { ref: BRANCH, inputs: { force: "true" } },
+  });
+  return r;   // 204 = ok
+}
+
+async function fetchReport() {
+  // 1) 同源（GitHub Pages 上 editor/ 与 report.json 同一个站点）
+  try {
+    const r = await fetch("../report.json", { cache: "no-store" });
+    if (r.ok) return await r.json();
+  } catch (e) { /* fall through */ }
+  // 2) 回落到 Contents API
+  if (!S.token) return null;
+  const r = await api("/repos/" + OWNER + "/" + REPO + "/contents/dist/report.json?ref=" + BRANCH);
+  if (!r.ok) return null;
+  try { return JSON.parse(b64decode(r.data.content)); } catch (e) { return null; }
+}
+
+/* ================================================================= validate */
+function validate(section, e) {
+  const idv = idOf(section, e);
+  if (!idv) return { action: "bad", why: "缺少 " + SECTION_KEYS[section] };
+  for (const f of SECTIONS[section].fields) {
+    if (!f.req) continue;
+    const v = getPath(e, f.p);
+    if (v === "" || v == null) return { action: "bad", why: "缺少 " + f.p };
+  }
+  if (section !== "sites") {
+    if (!isUrl(e.url)) return { action: "bad", why: "url 不是合法 http(s) 地址" };
+  } else if (!hasTarget(e)) {
+    return { action: "bad", why: "没有可用地址（需 api / ext / jar / url 任意一个）" };
+  }
+  return { action: "add", why: "" };
+}
+// 与 scripts/import_sources.py::_has_target 保持一致
+function hasTarget(e) {
+  if (isUrl(e.api) || isUrl(e.ext) || isUrl(e.jar) || isUrl(e.url)) return true;
+  if (e.ext && typeof e.ext === "object" && (isUrl(e.ext.api) || isUrl(e.ext.url))) return true;
+  if (isUrl(getPath(e, "probe.url"))) return true;
+  return typeof e.api === "string" && e.api.trim() !== "";   // csp_Xxx 类名也算
+}
+
+/* ================================================================ bulk parse */
+// 与 scripts/import_sources.py::_tidy 保持一致（只剥整行注释，避免伤到 URL）
+function tidy(text) {
+  return text.replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^[ \t]*\/\/.*$/gm, "")
+    .replace(/,\s*([}\]])/g, "$1");
+}
+function parseLine(line) {
+  const t = line.trim();
+  if (!t) return null;
+  if (t.startsWith("{")) {
+    try { return { kind: "obj", value: JSON.parse(t) }; }
+    catch (e) {
+      try { return { kind: "obj", value: JSON.parse(tidy(t)) }; }
+      catch (e2) { return { kind: "err", why: "JSON 解析失败：" + e2.message }; }
+    }
+  }
+  if (isUrl(t)) return { kind: "url", value: t };
+  if (/^[a-z]+:\/\//i.test(t)) return { kind: "err", why: "不是合法 http(s) 地址" };
+  return { kind: "err", why: "既不是 URL 也不是 JSON 对象" };
+}
+function guessSiteSection(obj) {
+  if (obj.key !== undefined) return "sites";
+  return null;
+}
+function siteFromUrl(url) {
+  return { key: "", name: "", type: 0, api: url };
+}
+function liveFromUrl(url) {
+  return { name: "", type: 0, url };
+}
+
+function runBulk() {
+  const text = $("bulk").value;
+  const auto = $("autoClassify").checked;
+  const cur = S.section;
+  if (!text.trim()) { $("bulkMsg").textContent = "没有内容"; return; }
+
+  const whole = text.trim();
+  if (whole.startsWith("{") && /"(sites|parses|lives)"\s*:/.test(whole)) {
+    let obj = null;
+    try { obj = JSON.parse(whole); } catch (e) { try { obj = JSON.parse(tidy(whole)); } catch (e2) { obj = null; } }
+    if (obj && typeof obj === "object") {
+      let added = 0, skipped = 0;
+      for (const sec of ["sites", "parses", "lives"]) {
+        for (const item of (obj[sec] || [])) {
+          if (item && typeof item === "object") { addToPending(sec, item, true); added++; } else skipped++;
+        }
+      }
+      $("bulk").value = "";
+      renderAll();
+      $("bulkMsg").textContent = "整段 JSON：入列 " + added + " 条" + (skipped ? "，无效 " + skipped : "");
+      return;
+    }
+  }
+
+  const notes = [];
+  let added = 0, skipped = 0;
+  const lines = text.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    if (!raw.trim()) continue;
+    const r = parseLine(raw);
+    if (!r || r.kind === "err") { notes.push("第 " + (i + 1) + " 行：" + (r ? r.why : "空行")); skipped++; continue; }
+
+    if (r.kind === "obj") {
+      const obj = r.value;
+      let sec = guessSiteSection(obj) || (obj.url && !obj.api && !obj.ext && !obj.jar ? null : "sites");
+      if (!sec) sec = (obj.name && obj.url) ? cur : "sites";
+      if (addToPending(sec, obj, false)) { added++; } else { skipped++; }
+      continue;
+    }
+
+    // 纯 URL
+    const url = r.value;
+    let sec = cur;
+    if (auto && /\.(m3u8|m3u|ts|flv|mpd)(\?|$)/i.test(url)) sec = "lives";
+    if (sec === "sites") {
+      const base = siteFromUrl(url);
+      if (addToPending("sites", base, false)) added++; else skipped++;
+    } else if (sec === "lives") {
+      const base = liveFromUrl(url);
+      base.name = slugify(url);
+      if (addToPending("lives", base, false)) added++; else skipped++;
+    } else {
+      notes.push("第 " + (i + 1) + " 行：解析分区不接受裸 URL，要粘 JSON 对象");
+      skipped++;
+    }
+  }
+  $("bulk").value = "";
+  $("bulkMsg").textContent = "入列 " + added + " 条" + (skipped ? "，跳过 " + skipped : "");
+  if (notes.length) $("bulkMsg").textContent += " · " + notes.slice(0, 3).join("；") + (notes.length > 3 ? " …" : "");
+  renderAll();
+}
+
+/* ================================================================= pending */
+function addToPending(section, entry, allowDup) {
+  const e = JSON.parse(JSON.stringify(entry));
+  // 自动补全
+  if (section === "sites") {
+    if (!e.name) e.name = e.key || slugify(e.api || e.ext || e.jar || "源");
+    if (!e.key) e.key = uniqKey(S.cfg, "sites", slugify(e.api || e.ext || e.jar || e.name));
+    if (e.type === undefined) e.type = 0;
+    // TVBox Site.java 对这四个字段的默认值都是 1，这里显式写出来保持与表单一致
+    for (const f of ["searchable", "quickSearch", "filterable", "changeable"])
+      if (e[f] === undefined) e[f] = 1;
+  } else {
+    if (!e.name) e.name = slugify(e.url || "源");
+    if (e.type === undefined) e.type = 0;
+  }
+  const id = idOf(section, e);
+  const existing = S.cfg[section] || [];
+  const inCfg = existing.some((x) => idOf(section, x) === id);
+  const inPend = S.pending[section].some((x) => idOf(section, x) === id);
+  if (!allowDup && (inPend || (inCfg && !S.removing[section].has(id)))) return false;
+  S.pending[section].push(e);
+  return true;
+}
+
+/* ================================================================== render */
+function renderTabs() {
+  const t = $("tabs");
+  t.innerHTML = "";
+  for (const k of Object.keys(SECTIONS)) {
+    const b = document.createElement("button");
+    b.className = "tab" + (S.section === k ? " on" : "");
+    const pend = S.pending[k].length;
+    b.innerHTML = SECTIONS[k].tab + '<span class="n">' +
+      ((S.cfg && S.cfg[k] ? S.cfg[k].length : 0) + (pend ? " +" + pend : "")) + "</span>";
+    b.onclick = () => { S.section = k; renderAll(); };
+    t.appendChild(b);
+  }
+}
+
+function renderForm() {
+  const sec = SECTIONS[S.section];
+  $("formTitle").textContent = "➕ 添加一条" + sec.unit;
+  const box = $("formFields");
+  box.innerHTML = "";
+  for (const f of sec.fields) {
+    const wrap = document.createElement("div");
+    wrap.className = "f" + (f.full || f.kind === "flags" ? " full" : "");
+    const lab = document.createElement("label");
+    lab.innerHTML = esc(f.label) + (f.req ? ' <span class="req">*</span>' : "");
+    wrap.appendChild(lab);
+
+    if (f.kind === "flags") {
+      const g = document.createElement("div");
+      g.className = "flags";
+      for (const [k, txt] of f.opts) {
+        const l = document.createElement("label");
+        l.className = "flag";
+        l.innerHTML = '<input type="checkbox" data-flag="' + k + '"' +
+          ((f.def || []).includes(k) ? " checked" : "") + "><span>" + esc(txt) + "</span>";
+        g.appendChild(l);
+      }
+      wrap.appendChild(g);
+    } else if (f.kind === "select") {
+      const s = document.createElement("select");
+      s.dataset.path = f.p;
+      for (const [v, txt] of f.opts) {
+        const o = document.createElement("option");
+        o.value = v; o.textContent = txt;
+        if (v === String(f.def)) o.selected = true;
+        s.appendChild(o);
+      }
+      wrap.appendChild(s);
+    } else {
+      const i = document.createElement("input");
+      i.type = "text";
+      i.dataset.path = f.p;
+      if (f.ph) i.placeholder = f.ph;
+      wrap.appendChild(i);
+    }
+    if (f.hint) {
+      const h = document.createElement("div");
+      h.className = "hint";
+      h.textContent = f.hint;
+      wrap.appendChild(h);
+    }
+    box.appendChild(wrap);
+  }
+}
+
+function readForm() {
+  const sec = S.section;
+  const e = {};
+  for (const f of SECTIONS[sec].fields) {
+    if (f.kind === "flags") continue;
+    const el = $("formFields").querySelector('[data-path="' + f.p + '"]');
+    if (!el) continue;
+    let v = clean(el.value);
+    if (v === "" || v == null) continue;
+    if (f.p === "type") v = parseInt(v, 10);
+    if (f.p.endsWith(".kind") && v === "") continue;
+    setPath(e, f.p, v);
+  }
+  const flags = $("formFields").querySelectorAll("[data-flag]");
+  flags.forEach((c) => { e[c.dataset.flag] = c.checked ? 1 : 0; });
+  return e;
+}
+function resetForm() {
+  renderForm();
+}
+
+function renderExisting() {
+  const box = $("existing");
+  const sec = S.section;
+  const list = (S.cfg && S.cfg[sec]) || [];
+  const pend = S.pending[sec];
+  let html = '<div class="hint" style="padding:2px 7px 6px">已收录 ' + list.length + ' 条 · 待提交 +' +
+    pend.length + (S.removing[sec].size ? " · 待删 −" + S.removing[sec].size : "") + "</div>";
+  for (const e of list) {
+    const id = idOf(sec, e);
+    const gone = S.removing[sec].has(id);
+    const url = e.api || e.url || e.ext || e.jar || "";
+    html += '<div class="item' + (gone ? " gone" : "") + '" title="' + esc(JSON.stringify(e)) + '">' +
+      '<span class="nm">' + esc(e.name || id) + "</span>" +
+      '<span class="ur">' + esc(url) + "</span>" +
+      '<button class="x" data-del="' + esc(id) + '" title="标记删除">' + (gone ? "↺" : "✕") + "</button>" +
+      "</div>";
+  }
+  if (!list.length && !pend.length) html += '<div class="hint" style="padding:6px 7px">（空）</div>';
+  for (const e of pend) {
+    const id = idOf(sec, e);
+    const url = e.api || e.url || e.ext || e.jar || "";
+    html += '<div class="item" title="待提交"><span class="nm" style="color:var(--add)">＋ ' +
+      esc(e.name || id) + "</span>" +
+      '<span class="ur">' + esc(url) + "</span></div>";
+  }
+  box.innerHTML = html;
+  box.querySelectorAll("[data-del]").forEach((b) => {
+    b.onclick = () => {
+      const id = b.dataset.del;
+      if (S.removing[sec].has(id)) S.removing[sec].delete(id);
+      else S.removing[sec].add(id);
+      renderAll();
+    };
+  });
+}
+
+function computeDiff() {
+  const rows = [];
+  for (const sec of Object.keys(SECTIONS)) {
+    for (const e of S.pending[sec]) {
+      const id = idOf(sec, e);
+      const inCfg = (S.cfg[sec] || []).some((x) => idOf(sec, x) === id);
+      const v = validate(sec, e);
+      let action = v.action, why = v.why;
+      if (inCfg && !S.removing[sec].has(id)) { action = "skip"; why = "已存在（key 重复）"; }
+      else if (action === "add" && inCfg && S.removing[sec].has(id)) { why = "恢复"; }
+      rows.push({ sec, id, e, action, why });
+    }
+    for (const id of S.removing[sec]) {
+      if (!(S.cfg[sec] || []).some((x) => idOf(sec, x) === id)) continue;
+      if (S.pending[sec].some((x) => idOf(sec, x) === id)) continue;
+      rows.push({ sec, id, e: null, action: "del", why: "从候选池移除" });
+    }
+  }
+  return rows;
+}
+
+function renderDiff() {
+  const rows = computeDiff();
+  const box = $("diffBox");
+  const nAdd = rows.filter((r) => r.action === "add").length;
+  const nDel = rows.filter((r) => r.action === "del").length;
+  const nSkip = rows.filter((r) => r.action === "skip" || r.action === "bad").length;
+
+  $("diffHint").textContent = rows.length
+    ? "+" + nAdd + " 新增 · −" + nDel + " 删除 · " + nSkip + " 跳过"
+    : "还没有改动";
+
+  if (!rows.length) {
+    box.innerHTML = '<div class="empty">左侧添加源后，这里会显示将要写进 <code>config/sources.json</code> 的改动。</div>';
+  } else {
+    let h = "<table><thead><tr><th>分区</th><th>" + "标识</th><th>动作</th><th>原因</th><th>地址</th>" +
+      "</tr></thead><tbody>";
+    for (const r of rows) {
+      const cls = r.action === "add" ? "add" : r.action === "del" ? "del" :
+        r.action === "bad" ? "bad" : "skip";
+      const label = { add: "新增", del: "删除", skip: "跳过", bad: "无效" }[r.action];
+      const e = r.e || (S.cfg[r.sec] || []).find((x) => idOf(r.sec, x) === r.id) || {};
+      h += "<tr><td>" + esc(SECTIONS[r.sec].short) + "</td>" +
+        '<td class="id">' + esc(r.id) + "</td>" +
+        '<td><span class="act ' + cls + '">' + label + "</span></td>" +
+        "<td>" + esc(r.why) + "</td>" +
+        '<td class="url">' + esc(e.api || e.url || e.ext || e.jar || "") + "</td></tr>";
+    }
+    h += "</tbody></table>";
+    box.innerHTML = h;
+  }
+
+  const canCommit = (nAdd + nDel) > 0 && !!S.cfg && !!S.token;
+  $("btnCommit").disabled = !canCommit;
+  $("commitSummary").textContent = (nAdd + nDel)
+    ? ("将提交 " + nAdd + " 条新增、" + nDel + " 条删除")
+    : "无待提交改动";
+  $("commitSub").textContent = !S.token ? "需要先在左侧填 token 并验证"
+    : !S.cfg ? "需要先加载配置文件"
+    : (nAdd + nDel) ? "写入 " + CFG_PATH + "（分支 " + BRANCH + "）"
+    : "添加或删除条目后可提交";
+}
+
+function renderAll() {
+  renderTabs();
+  renderForm();
+  renderExisting();
+  renderDiff();
+}
+
+/* ================================================================== report */
+function renderReport() {
+  const box = $("reportBox");
+  const d = S.report;
+  if (!d) { box.innerHTML = "还没有体检结果（或还没有 Pages）"; return; }
+  const c = d.counts || {};
+  let h = '<div class="rpt-grid">' +
+    '<div class="rpt-c ok"><b>' + (c.alive || 0) + "</b><span>存活</span></div>" +
+    '<div class="rpt-c gr"><b>' + (c.grace || 0) + "</b><span>暂存</span></div>" +
+    '<div class="rpt-c dead"><b>' + (c.dead || 0) + "</b><span>已剔除</span></div>" +
+    '<div class="rpt-c unv"><b>' + (c.unverified || 0) + "</b><span>未验证</span></div></div>";
+  const res = d.results || {};
+  const items = Object.entries(res).filter(([, v]) => v && v.ok === false).slice(0, 40);
+  h += '<div class="rpt-list">';
+  if (!items.length) h += '<div class="hint">全部通过</div>';
+  for (const [k, v] of items) {
+    h += '<div><span class="st">❌</span><span class="who">' + esc(k) + "</span>" +
+      '<span class="dt" title="' + esc(v.detail || "") + '">' + esc((v.detail || "").slice(0, 60)) + "</span></div>";
+  }
+  h += "</div>";
+  if (d.generated_at) h += '<div class="hint" style="margin-top:6px">' + esc(d.generated_at) + "</div>";
+  box.innerHTML = h;
+}
+
+async function refreshReport() {
+  const d = await fetchReport();
+  S.report = d;
+  renderReport();
+}
+
+/* ================================================================= actions */
+function doAdd() {
+  const e = readForm();
+  const sec = S.section;
+  if (!S.cfg) { toast("先加载配置", "err"); return; }
+  const v = validate(sec, e);
+  if (v.action !== "add" && !(e.api || e.url)) { toast("表单还没填好：" + (v.why || "缺字段"), "err"); return; }
+  if (!addToPending(sec, e, false)) { toast("已存在重复条目：" + idOf(sec, e), "err"); return; }
+  toast("已加入待提交：" + (idOf(sec, e) || e.name), "ok");
+  resetForm();
+  renderAll();
+}
+
+async function doCommit() {
+  const rows = computeDiff();
+  const nAdd = rows.filter((r) => r.action === "add").length;
+  const nDel = rows.filter((r) => r.action === "del").length;
+  if (!nAdd && !nDel) return;
+  const bad = rows.filter((r) => r.action === "bad");
+  if (bad.length && !confirm(bad.length + " 条无效条目会被跳过，仍要继续？")) return;
+  if (!confirm("提交 " + nAdd + " 条新增、" + nDel + " 条删除到 " + CFG_PATH + "？")) return;
+
+  const btn = $("btnCommit");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> 提交中…';
+  try {
+    // 用提交前算好的 diff 依次应用：先删（去重），后加
+    for (const sec of Object.keys(SECTIONS)) {
+      S.cfg[sec] = (S.cfg[sec] || []).filter((x) => !S.removing[sec].has(idOf(sec, x)));
+    }
+    for (const r of rows) {
+      if (r.action !== "add") continue;
+      S.cfg[r.sec] = (S.cfg[r.sec] || []).concat([r.e]);
+    }
+    const msg = "chore(config): add " + nAdd + ", remove " + nDel + " via editor";
+    await commitConfig(msg);
+    S.pending = { sites: [], parses: [], lives: [] };
+    S.removing = { sites: new Set(), parses: new Set(), lives: new Set() };
+    setLog("✓ 已提交：" + msg + "\n→ https://github.com/" + OWNER + "/" + REPO + "/commits/" + BRANCH, "ok");
+    toast("已提交到仓库", "ok");
+
+    if ($("triggerRun").checked) {
+      const r = await triggerRun();
+      if (r.ok) {
+        setLog("✓ 已提交。\n✓ 已触发 Daily source check，1~2 分钟后体检结果会更新。\n→ https://github.com/" +
+          OWNER + "/" + REPO + "/actions", "ok");
+        setTimeout(refreshReport, 45000);
+      } else {
+        setLog("✓ 已提交，但触发重检失败（HTTP " + r.status +
+          "）。\n→ 手动跑一次：https://github.com/" + OWNER + "/" + REPO +
+          "/actions/workflows/daily.yml", "err");
+      }
+    }
+    await loadConfig(true);
+  } catch (e) {
+    setLog(String(e && e.message || e), "err");
+    toast("提交失败", "err");
+    await loadConfig(true);
+  } finally {
+    btn.innerHTML = "提交到仓库";
+    renderAll();
+  }
+}
+
+function previewJson() {
+  const box = $("previewBox");
+  if (box.classList.contains("show")) { box.className = "log"; return; }
+  if (!S.cfg) { toast("先加载配置", "err"); return; }
+  const rows = computeDiff();
+  const clone = JSON.parse(JSON.stringify(S.cfg));
+  for (const sec of Object.keys(SECTIONS)) {
+    clone[sec] = (clone[sec] || []).filter((x) => !S.removing[sec].has(idOf(sec, x)));
+  }
+  for (const r of rows) if (r.action === "add") clone[r.sec].push(r.e);
+  box.textContent = JSON.stringify(clone, null, 2);
+  box.className = "log show";
+  box.style.maxHeight = "440px";
+  box.style.overflow = "auto";
+}
+
+function download() {
+  if (!S.cfg) { toast("先加载", "err"); return; }
+  const blob = new Blob([JSON.stringify(S.cfg, null, 2) + "\n"], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "sources.json";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+}
+
+/* ==================================================================== init */
+function loadToken() {
+  let t = "", rem = false;
+  try {
+    t = sessionStorage.getItem("tv_editor_token") || "";
+    rem = localStorage.getItem("tv_editor_remember") === "1";
+    if (rem) t = localStorage.getItem("tv_editor_token") || t;
+  } catch (e) { /* storage disabled */ }
+  if (t) { S.token = t; $("token").value = t; $("remember").checked = true; }
+}
+function saveToken() {
+  const t = S.token;
+  const rem = $("remember").checked;
+  try {
+    if (rem) {
+      localStorage.setItem("tv_editor_token", t);
+      localStorage.setItem("tv_editor_remember", "1");
+      sessionStorage.removeItem("tv_editor_token");
+    } else {
+      sessionStorage.setItem("tv_editor_token", t);
+      localStorage.removeItem("tv_editor_token");
+      localStorage.removeItem("tv_editor_remember");
+    }
+  } catch (e) { /* ignore */ }
+}
+
+function bind() {
+  $("repoLabel").textContent = OWNER + "/" + REPO + " · " + BRANCH;
+
+  $("token").addEventListener("input", (e) => {
+    S.token = e.target.value.trim();
+    if (!S.token) {
+      $("connBadge").className = "badge off"; $("connBadge").textContent = "未连接";
+      renderDiff();
+    }
+    saveToken();
+  });
+  $("btnShow").onclick = () => {
+    const i = $("token");
+    i.type = i.type === "password" ? "text" : "password";
+    $("btnShow").textContent = i.type === "password" ? "显示" : "隐藏";
+  };
+  $("btnVerify").onclick = async () => {
+    S.token = $("token").value.trim();
+    saveToken();
+    $("btnVerify").disabled = true;
+    try {
+      if (await verifyToken()) await loadConfig();
+    } finally { $("btnVerify").disabled = false; }
+  };
+  $("btnClear").onclick = () => {
+    S.token = ""; $("token").value = "";
+    try { localStorage.removeItem("tv_editor_token"); localStorage.removeItem("tv_editor_remember");
+          sessionStorage.removeItem("tv_editor_token"); } catch (e) {}
+    $("connBadge").className = "badge off"; $("connBadge").textContent = "未连接";
+    setLog("已清除本地 token", "");
+    renderDiff();
+  };
+  $("remember").onchange = saveToken;
+
+  $("btnReload").onclick = () => loadConfig();
+  $("btnDiscard").onclick = () => {
+    S.pending = { sites: [], parses: [], lives: [] };
+    S.removing = { sites: new Set(), parses: new Set(), lives: new Set() };
+    renderAll(); toast("已放弃未提交的改动");
+  };
+  $("btnDownload").onclick = download;
+  $("btnReport").onclick = refreshReport;
+
+  $("btnAdd").onclick = doAdd;
+  $("btnReset").onclick = resetForm;
+  $("btnBulk").onclick = runBulk;
+  $("btnBulkClear").onclick = () => { $("bulk").value = ""; $("bulkMsg").textContent = ""; };
+  $("btnCommit").onclick = doCommit;
+  $("btnPreview").onclick = previewJson;
+}
+
+(async function init() {
+  bind();
+  loadToken();
+  renderAll();
+  await refreshReport();
+  if (S.token) {
+    $("btnVerify").disabled = true;
+    try {
+      if (await verifyToken()) await loadConfig(true);
+    } finally { $("btnVerify").disabled = false; }
+  }
+})();
+</script>
+</body>
+</html>
