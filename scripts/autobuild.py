@@ -121,11 +121,17 @@ def run_checks(cfg):
     keyword = settings.get("keyword", "")
     parse_test_url = settings.get("parse_test_url", "")
 
+    probe_settings = {
+        "keyword": keyword,
+        "play_check": settings.get("play_check", "auto"),
+        "play_check_urls": settings.get("play_check_urls", 2),
+    }
+
     jobs = []
 
     for site in cfg.get("sites", []):
         key = "site:" + entry_name(site, "key")
-        jobs.append((key, lambda s=site: probe.probe_site(s, {"keyword": keyword}, timeout)))
+        jobs.append((key, lambda s=site: probe.probe_site(s, probe_settings, timeout)))
 
     for entry in cfg.get("parses", []):
         key = "parse:" + entry_name(entry, "name")

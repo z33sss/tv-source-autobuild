@@ -1,0 +1,26 @@
+{
+  "_comment": "上游订阅清单。scripts/sync_upstream.py 每次运行按顺序拉取并合并进 config/sources.json；同次流水线随后会深度体检，死源 3 次连续失败后自动剔除。",
+  "_modes": "merge=取并集，本地手动加的源不会被覆盖（默认）；replace=完全跟随上游，会先丢弃上次从该上游收养的条目",
+  "_formats": "auto=自动识别；tvbox=标准 sites/parses/lives；lunatv=api_site 映射表",
+  "upstreams": [
+    {
+      "name": "example-tvbox",
+      "url": "https://example.com/tvbox.json",
+      "enabled": false,
+      "format": "auto",
+      "mode": "merge",
+      "timeout": 20,
+      "spider": false,
+      "_note": "把 url 换成你自己的上游地址，再把 enabled 改成 true"
+    },
+    {
+      "name": "example-api-site-map",
+      "url": "https://example.com/api-site-config.json",
+      "enabled": false,
+      "format": "lunatv",
+      "mode": "merge",
+      "timeout": 20,
+      "_note": "api_site 映射表（cache_time + api_site）走这个适配器，会转成 type:0 采集站"
+    }
+  ]
+}

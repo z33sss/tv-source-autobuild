@@ -6,6 +6,9 @@
     "workers": 8,
     "drop_after": 3,
     "keyword": "中国",
+    "play_check": "auto",
+    "play_check_comment": "闸门3 播放链路验证：auto=目录里有直链就验下载、没有就标『未验证』；strict=必须有直链否则判死；off=关闭",
+    "play_check_urls": 2,
     "parse_test_url": "",
     "parse_test_url_hint": "填一个真实视频详情页地址后，解析接口会做‘能否解出播放地址’的真验证；留空则只做可达性检测"
   },

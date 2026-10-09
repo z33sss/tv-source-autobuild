@@ -5,10 +5,16 @@
 你只需要把一个 URL 粘贴进 APK，剩下的交给 GitHub Actions。
 
 ```
+config/upstreams.json 你订阅的上游接口清单
+        │
+        ▼
+scripts/sync_upstream.py   拉取 → 识别格式 → 去重合并（打 _from 标记）
+        │
+        ▼
 config/sources.json   你维护的候选源（收养进来的站点/解析/直播）
         │
         ▼
-scripts/autobuild.py  深度验证 → 更新历史 → 打分 → 排序 → 剔除连续失效源
+scripts/autobuild.py  深度验证（三闸门） → 更新历史 → 打分 → 排序 → 剔除连续失效源
         │
         ├── state/history.json    每个源的滚动健康档案（10 次窗口）
         ├── state/report.json     本次检测原始结果
@@ -73,7 +79,47 @@ python scripts/import_sources.py https://example.com/tvbox.json --dry-run   # �
 
 也可以直接手工编辑 `config/sources.json`（结构见下一节）。
 
-### 3. 本地跑一次
+### 3. 订阅上游（每日自动同步）
+
+上面那步是**一次性导入**；如果你有个会持续更新的上游接口，用 `config/upstreams.json` 订阅它：
+
+```bash
+python scripts/sync_upstream.py               # 拉取所有 enabled 的上游并合并
+python scripts/sync_upstream.py --dry-run     # 只看统计，不写入
+python scripts/sync_upstream.py --only 名字    # 只同步某一个
+```
+
+```jsonc
+// config/upstreams.json
+{
+  "upstreams": [
+    {
+      "name": "my-upstream",
+      "url":  "https://.../tvbox.json",   // 也支持 api.github.com/repos/.../contents/...
+      "enabled": true,
+      "format": "auto",    // auto | tvbox | lunatv
+      "mode":   "merge",   // merge | replace
+      "timeout": 20
+    }
+  ]
+}
+```
+
+- **`format`** —— `auto` 自动识别。`tvbox` 是标准 `sites/parses/lives`；`lunatv` 是
+  `{"cache_time":…, "api_site": {条目名: {name, api, detail}}}` 这种映射表（**不是** TVBox 格式，
+  直接喂 `import_sources.py` 会一条都读不到），适配器会把它转成 `type: 0` 的采集站。
+- **`mode: merge`**（默认）—— 取并集，你本地手动加的源不会被上游覆盖。
+  **`mode: replace`** —— 完全跟随上游：先丢掉上次从这个上游收养的条目（按 `_from` 标记识别）再合并，
+  所以上游改了 key 或删了源，你这边会同步。
+- 每个被收养的条目都会打上 **`_from`**（以及上游里带的 `_note`）—— 下划线前缀字段生成输出时会被剥掉，
+  所以既能查「这个源哪来的」，又不会污染 `dist/tvbox.json`。
+- **单个上游挂掉只打印 `[fail]` 不中断**，当天的深度体检照常跑。要让它卡住流水线就加 `--strict`。
+- 拉取状态写在 `state/sync.json`。
+
+流水线里的顺序是 **sync → 深度体检 → 提交**，所以**上游塞进来的死源当次就会被闸门拦住，
+连续 3 天不活才被踢出输出**——同步只管搬运，取舍交给已有的体检。
+
+### 4. 本地跑一次
 
 ```bash
 python scripts/autobuild.py            # 检测 + 生成
@@ -85,7 +131,7 @@ python scripts/autobuild.py --build    # 只用上次的检测结果重新生成
 
 > 本机没有 Python 也可以：把仓库推上去后直接在 **Actions → Daily source check → Run workflow** 手动跑一次。
 
-### 4. 打开自动化
+### 5. 打开自动化
 
 1. **Settings → Actions → General → Workflow permissions** → 选 *Read and write permissions*（否则 commit 会被拒）。
 2. **Settings → Pages → Source** → 选 **GitHub Actions**（否则 Pages 部署那步会报错）。
@@ -106,6 +152,10 @@ python scripts/autobuild.py --build    # 只用上次的检测结果重新生成
     "workers": 8,           // 并发检测线程数
     "drop_after": 3,        // 连续失效 N 次才从输出里剔除（防抖动）
     "keyword": "中国",       // 采集站搜索验证用的关键词
+
+    "play_check": "auto",   // 闸门3 播放链路验证：auto / strict / off
+    "play_check_urls": 2,   // 最多试几条直链（第一条挂了换下一条）
+
     "parse_test_url": ""    // 填了就对解析接口做“真解出”深度验证
   },
 
@@ -158,12 +208,41 @@ python scripts/autobuild.py --build    # 只用上次的检测结果重新生成
 
 | 情况 | 探测方式 |
 | --- | --- |
-| `api` 是 URL，且 `type ∈ {0,3,6}` **或**路径含 `provide/vod` | **采集站深度验证**：请求 `?ac=list&pg=1` → 要求返回非空条目且不是 HTML；再请求 `?ac=detail&wd=关键词` → 要求真能搜到东西 |
+| `api` 是 URL，且 `type ∈ {0,3,6}` **或**路径含 `provide/vod` | **采集站三闸门深度验证**（见下） |
 | `ext` 是带 `provide/vod` 的 URL | 同上，按采集站深度验证 |
 | `ext` 是 `.json` URL | 下载并要求能解析成带列表的 JSON |
 | `ext` 是其它 URL / `jar` 是 URL | HTTP 探活 + 体积/内容校验（`jar` 太小视为失效） |
 | **`playUrl` 是 URL** | GET 可达性探测（播放器网关带空 `?url=` 也会 200，所以只验可达） |
 | `api` 是 `csp_Xxx` 这种类名、没有任何 URL | **标记为「无法验证」**，永不因检测而被剔除 |
+
+**采集站三闸门 —— 从「接口活着」一路验到「真的能看」：**
+
+| 闸门 | 做什么 | 不过会怎样 |
+| --- | --- | --- |
+| **1 · 目录** | `?ac=list&pg=1` → 要求返回**非空条目**且不是 HTML | 判失效 |
+| **2 · 搜索** | `?ac=detail&wd=关键词` → 要求**真能搜到东西** | 判失效 |
+| **3 · 播放链路** | 从搜索结果里取出真实 `vod_play_url` → 解析出 HLS 直链 → 拉播放列表 → **首个分片真的能下载**（且不是 HTML） | 判失效（`play_check=auto/strict`） |
+
+闸门 3 具体做的事：
+
+```
+vod_play_url "标题$链接#标题$链接$$$线路2$..."
+      → 分类：含 m3u8 的按 HLS 走；.mp4/.mkv 等按直链走；播放器页跳过
+      → HLS：主播放列表 → 变体 → 媒体播放列表 → GET 首个分片（限 64KB）
+      → 分片 403/401 时，带同源 Referer 重试一次（CDN 防盗链）
+      → 直链：GET 前 64KB，要求非空且不是 HTML
+```
+
+三种模式：
+
+| `play_check` | 行为 |
+| --- | --- |
+| `auto`（默认） | 目录里**有**直链 → 必须验通；**没有**直链（全靠解析接口）→ 标「播放链路未验证（无直链）」，不判死 |
+| `strict` | 没有直链也判失效。适合你只想要「开箱即播」的源 |
+| `off` | 关闭闸门 3，退回到前两闸门 |
+
+> 闸门 3 每站最多多花 `2 × play_check_urls` 次请求（默认 2 条候选 × 列表+分片）。
+> CDN 偶尔抖动会被 `drop_after = 3` 吸收，不会一天就把好源踢掉。
 
 > **分类按 URL 路径判断，不只看 `type`** —— 所以 `type: 1` 配 `.../api.php/provide/vod/...`
 > 这种写法依然会走深度验证，不会退化成只探首页 200。
@@ -219,10 +298,11 @@ python scripts/autobuild.py --build    # 只用上次的检测结果重新生成
 `.github/workflows/daily.yml`：
 
 1. `cron: 37 17 * * *`（每天 17:37 UTC ≈ 北京时间次日 01:37）触发，也可手动 `Run workflow`。
-2. 跑 `python scripts/autobuild.py`（深度检测 + 生成）。
-3. 把 `state/` 和 `dist/` 的变化 commit 回仓库（带当天日报）。
-4. 把 `dist/` 发布到 GitHub Pages → 你就有了稳定的 `tvbox.json` 地址。
-5. 日报同时写进 Actions 的 **Summary**。
+2. 跑 `python scripts/sync_upstream.py`（拉上游，没配订阅就直接跳过）。
+3. 跑 `python scripts/autobuild.py`（三闸门深度检测 + 生成）。
+4. 把 `state/`、`dist/`、`config/` 的变化 commit 回仓库（带当天日报）。
+5. 把 `dist/` 发布到 GitHub Pages → 你就有了稳定的 `tvbox.json` 地址。
+6. 日报同时写进 Actions 的 **Summary**。
 
 想要更高频？把 `cron` 改成每 6 小时一次即可（同一 repo 的 schedule 任务最少间隔 5 分钟，
 但 GitHub 对活跃度低的仓库会自动降频，必要时用 `workflow_dispatch` 手动补跑）。
