@@ -1,17 +1,26 @@
 {
-  "generated_at": "2026-10-09T17:48:02+00:00",
+  "generated_at": "2026-10-10T17:45:05+00:00",
   "counts": {
     "alive": 2,
-    "grace": 5,
-    "dead": 0,
+    "grace": 0,
+    "dead": 5,
     "unverified": 0
   },
   "results": {
+    "live:Apple bipbop": {
+      "ok": true,
+      "kind": "m3u8",
+      "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8",
+      "latency_ms": 85,
+      "items": 24,
+      "detail": "24 channel(s)",
+      "note": ""
+    },
     "live:Mux 测试流": {
       "ok": true,
       "kind": "m3u8",
       "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-      "latency_ms": 166,
+      "latency_ms": 144,
       "items": 5,
       "detail": "5 channel(s)",
       "note": ""
@@ -20,41 +29,16 @@
       "ok": true,
       "kind": "http",
       "url": "https://picsum.photos/1920/1080",
-      "latency_ms": 498,
+      "latency_ms": 728,
       "items": 0,
-      "detail": "HTTP 200 110334B",
+      "detail": "HTTP 200 181356B",
       "note": ""
-    },
-    "live:Apple bipbop": {
-      "ok": true,
-      "kind": "m3u8",
-      "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8",
-      "latency_ms": 1133,
-      "items": 24,
-      "detail": "24 channel(s)",
-      "note": ""
-    },
-    "site:example_spider": {
-      "ok": false,
-      "kind": "http",
-      "url": "https://demo-jars.example.com/custom_spider.jar",
-      "latency_ms": 1156,
-      "items": 0,
-      "targets": [
-        {
-          "label": "jar",
-          "kind": "http",
-          "url": "https://demo-jars.example.com/custom_spider.jar",
-          "ok": false
-        }
-      ],
-      "detail": "[example_spider] jar 地址失败: URLError: <urlopen error [Errno -5] No address associated with hostname>"
     },
     "parse:示例解析": {
       "ok": false,
       "kind": "http",
       "url": "https://demo-parse.example.com/api.php/provide/vod/",
-      "latency_ms": 1158,
+      "latency_ms": 1104,
       "items": 0,
       "detail": "URLError: <urlopen error [Errno -5] No address associated with hostname>",
       "note": ""
@@ -63,7 +47,7 @@
       "ok": false,
       "kind": "http",
       "url": "https://demo-rules.example.com/rules/demo.js",
-      "latency_ms": 1178,
+      "latency_ms": 1149,
       "items": 0,
       "targets": [
         {
@@ -75,27 +59,27 @@
       ],
       "detail": "[example_rule] ext 地址失败: URLError: <urlopen error [Errno -5] No address associated with hostname>"
     },
-    "site:example_probe": {
+    "site:example_spider": {
       "ok": false,
-      "kind": "cms",
-      "url": "https://demo-probe.example.com/api.php/provide/vod/",
-      "latency_ms": 1139,
+      "kind": "http",
+      "url": "https://demo-jars.example.com/custom_spider.jar",
+      "latency_ms": 1189,
       "items": 0,
       "targets": [
         {
-          "label": "probe",
-          "kind": "cms",
-          "url": "https://demo-probe.example.com/api.php/provide/vod/",
+          "label": "jar",
+          "kind": "http",
+          "url": "https://demo-jars.example.com/custom_spider.jar",
           "ok": false
         }
       ],
-      "detail": "[example_probe] probe 采集失败: URLError: <urlopen error [Errno -5] No address associated with hostname>"
+      "detail": "[example_spider] jar 地址失败: URLError: <urlopen error [Errno -5] No address associated with hostname>"
     },
     "site:example_cms": {
       "ok": false,
       "kind": "cms",
       "url": "https://demo-cms.example.com/api.php/provide/vod/",
-      "latency_ms": 1140,
+      "latency_ms": 1103,
       "items": 0,
       "targets": [
         {
@@ -106,6 +90,22 @@
         }
       ],
       "detail": "[example_cms] api 采集失败: URLError: <urlopen error [Errno -5] No address associated with hostname>"
+    },
+    "site:example_probe": {
+      "ok": false,
+      "kind": "cms",
+      "url": "https://demo-probe.example.com/api.php/provide/vod/",
+      "latency_ms": 1167,
+      "items": 0,
+      "targets": [
+        {
+          "label": "probe",
+          "kind": "cms",
+          "url": "https://demo-probe.example.com/api.php/provide/vod/",
+          "ok": false
+        }
+      ],
+      "detail": "[example_probe] probe 采集失败: URLError: <urlopen error [Errno -5] No address associated with hostname>"
     }
   }
 }
