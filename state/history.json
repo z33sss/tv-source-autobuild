@@ -1,13 +1,14 @@
 {
   "live:Mux 测试流": {
-    "ok": 3,
+    "ok": 4,
     "fail": 0,
     "consecutive_fail": 0,
-    "last_ok": "2026-10-10T17:45:05+00:00",
+    "last_ok": "2026-10-11T17:46:09+00:00",
     "last_fail": null,
-    "last_latency_ms": 144,
+    "last_latency_ms": 80,
     "last_items": 5,
     "recent": [
+      1,
       1,
       1,
       1
@@ -15,14 +16,15 @@
     "unverified": false
   },
   "live:Apple bipbop": {
-    "ok": 3,
+    "ok": 4,
     "fail": 0,
     "consecutive_fail": 0,
-    "last_ok": "2026-10-10T17:45:05+00:00",
+    "last_ok": "2026-10-11T17:46:09+00:00",
     "last_fail": null,
-    "last_latency_ms": 85,
+    "last_latency_ms": 318,
     "last_items": 24,
     "recent": [
+      1,
       1,
       1,
       1
@@ -31,13 +33,14 @@
   },
   "site:example_rule": {
     "ok": 0,
-    "fail": 3,
-    "consecutive_fail": 3,
+    "fail": 4,
+    "consecutive_fail": 4,
     "last_ok": null,
-    "last_fail": "2026-10-10T17:45:05+00:00",
+    "last_fail": "2026-10-11T17:46:09+00:00",
     "last_latency_ms": 0,
     "last_items": 0,
     "recent": [
+      0,
       0,
       0,
       0
@@ -46,13 +49,14 @@
   },
   "parse:示例解析": {
     "ok": 0,
-    "fail": 3,
-    "consecutive_fail": 3,
+    "fail": 4,
+    "consecutive_fail": 4,
     "last_ok": null,
-    "last_fail": "2026-10-10T17:45:05+00:00",
+    "last_fail": "2026-10-11T17:46:09+00:00",
     "last_latency_ms": 0,
     "last_items": 0,
     "recent": [
+      0,
       0,
       0,
       0
@@ -61,13 +65,14 @@
   },
   "site:example_spider": {
     "ok": 0,
-    "fail": 3,
-    "consecutive_fail": 3,
+    "fail": 4,
+    "consecutive_fail": 4,
     "last_ok": null,
-    "last_fail": "2026-10-10T17:45:05+00:00",
+    "last_fail": "2026-10-11T17:46:09+00:00",
     "last_latency_ms": 0,
     "last_items": 0,
     "recent": [
+      0,
       0,
       0,
       0
@@ -76,13 +81,14 @@
   },
   "site:example_probe": {
     "ok": 0,
-    "fail": 3,
-    "consecutive_fail": 3,
+    "fail": 4,
+    "consecutive_fail": 4,
     "last_ok": null,
-    "last_fail": "2026-10-10T17:45:05+00:00",
+    "last_fail": "2026-10-11T17:46:09+00:00",
     "last_latency_ms": 0,
     "last_items": 0,
     "recent": [
+      0,
       0,
       0,
       0
@@ -91,13 +97,14 @@
   },
   "site:example_cms": {
     "ok": 0,
-    "fail": 3,
-    "consecutive_fail": 3,
+    "fail": 4,
+    "consecutive_fail": 4,
     "last_ok": null,
-    "last_fail": "2026-10-10T17:45:05+00:00",
+    "last_fail": "2026-10-11T17:46:09+00:00",
     "last_latency_ms": 0,
     "last_items": 0,
     "recent": [
+      0,
       0,
       0,
       0
