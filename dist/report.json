@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-15T17:59:38+00:00",
+  "generated_at": "2026-10-16T17:59:43+00:00",
   "counts": {
     "alive": 2,
     "grace": 0,
@@ -11,7 +11,7 @@
       "ok": true,
       "kind": "m3u8",
       "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8",
-      "latency_ms": 25,
+      "latency_ms": 24,
       "items": 24,
       "detail": "24 channel(s)",
       "note": ""
@@ -20,7 +20,7 @@
       "ok": true,
       "kind": "m3u8",
       "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-      "latency_ms": 86,
+      "latency_ms": 134,
       "items": 5,
       "detail": "5 channel(s)",
       "note": ""
@@ -29,16 +29,16 @@
       "ok": true,
       "kind": "http",
       "url": "https://picsum.photos/1920/1080",
-      "latency_ms": 264,
+      "latency_ms": 242,
       "items": 0,
-      "detail": "HTTP 200 251434B",
+      "detail": "HTTP 200 297493B",
       "note": ""
     },
     "site:example_spider": {
       "ok": false,
       "kind": "http",
       "url": "https://demo-jars.example.com/custom_spider.jar",
-      "latency_ms": 1079,
+      "latency_ms": 1065,
       "items": 0,
       "targets": [
         {
@@ -54,7 +54,7 @@
       "ok": false,
       "kind": "http",
       "url": "https://demo-parse.example.com/api.php/provide/vod/",
-      "latency_ms": 1078,
+      "latency_ms": 1066,
       "items": 0,
       "detail": "URLError: <urlopen error [Errno -5] No address associated with hostname>",
       "note": ""
@@ -63,7 +63,7 @@
       "ok": false,
       "kind": "http",
       "url": "https://demo-rules.example.com/rules/demo.js",
-      "latency_ms": 1101,
+      "latency_ms": 1096,
       "items": 0,
       "targets": [
         {
@@ -79,7 +79,7 @@
       "ok": false,
       "kind": "cms",
       "url": "https://demo-cms.example.com/api.php/provide/vod/",
-      "latency_ms": 1036,
+      "latency_ms": 1057,
       "items": 0,
       "targets": [
         {
@@ -95,7 +95,7 @@
       "ok": false,
       "kind": "cms",
       "url": "https://demo-probe.example.com/api.php/provide/vod/",
-      "latency_ms": 1042,
+      "latency_ms": 1089,
       "items": 0,
       "targets": [
         {
