@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-18T17:53:36+00:00",
+  "generated_at": "2026-10-19T17:58:31+00:00",
   "counts": {
     "alive": 2,
     "grace": 0,
@@ -11,7 +11,7 @@
       "ok": true,
       "kind": "m3u8",
       "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8",
-      "latency_ms": 25,
+      "latency_ms": 23,
       "items": 24,
       "detail": "24 channel(s)",
       "note": ""
@@ -20,7 +20,7 @@
       "ok": true,
       "kind": "m3u8",
       "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-      "latency_ms": 88,
+      "latency_ms": 31,
       "items": 5,
       "detail": "5 channel(s)",
       "note": ""
@@ -29,25 +29,16 @@
       "ok": true,
       "kind": "http",
       "url": "https://picsum.photos/1920/1080",
-      "latency_ms": 266,
+      "latency_ms": 291,
       "items": 0,
-      "detail": "HTTP 200 471988B",
-      "note": ""
-    },
-    "parse:示例解析": {
-      "ok": false,
-      "kind": "http",
-      "url": "https://demo-parse.example.com/api.php/provide/vod/",
-      "latency_ms": 1050,
-      "items": 0,
-      "detail": "URLError: <urlopen error [Errno -2] Name or service not known>",
+      "detail": "HTTP 200 432440B",
       "note": ""
     },
     "site:example_spider": {
       "ok": false,
       "kind": "http",
       "url": "https://demo-jars.example.com/custom_spider.jar",
-      "latency_ms": 1061,
+      "latency_ms": 1066,
       "items": 0,
       "targets": [
         {
@@ -63,7 +54,7 @@
       "ok": false,
       "kind": "http",
       "url": "https://demo-rules.example.com/rules/demo.js",
-      "latency_ms": 1069,
+      "latency_ms": 1070,
       "items": 0,
       "targets": [
         {
@@ -74,6 +65,15 @@
         }
       ],
       "detail": "[example_rule] ext 地址失败: URLError: <urlopen error [Errno -5] No address associated with hostname>"
+    },
+    "parse:示例解析": {
+      "ok": false,
+      "kind": "http",
+      "url": "https://demo-parse.example.com/api.php/provide/vod/",
+      "latency_ms": 1076,
+      "items": 0,
+      "detail": "URLError: <urlopen error [Errno -5] No address associated with hostname>",
+      "note": ""
     },
     "site:example_cms": {
       "ok": false,
@@ -95,7 +95,7 @@
       "ok": false,
       "kind": "cms",
       "url": "https://demo-probe.example.com/api.php/provide/vod/",
-      "latency_ms": 1081,
+      "latency_ms": 1085,
       "items": 0,
       "targets": [
         {
