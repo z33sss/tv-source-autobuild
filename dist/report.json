@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T19:42:54+00:00",
+  "generated_at": "2026-10-25T19:54:04+00:00",
   "counts": {
     "alive": 2,
     "grace": 0,
@@ -7,38 +7,54 @@
     "unverified": 0
   },
   "results": {
-    "live:Apple bipbop": {
-      "ok": true,
-      "kind": "m3u8",
-      "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8",
-      "latency_ms": 47,
-      "items": 24,
-      "detail": "24 channel(s)",
-      "note": ""
-    },
     "live:Mux 测试流": {
       "ok": true,
       "kind": "m3u8",
       "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-      "latency_ms": 139,
+      "latency_ms": 129,
       "items": 5,
       "detail": "5 channel(s)",
+      "note": ""
+    },
+    "live:Apple bipbop": {
+      "ok": true,
+      "kind": "m3u8",
+      "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8",
+      "latency_ms": 302,
+      "items": 24,
+      "detail": "24 channel(s)",
       "note": ""
     },
     "misc:wallpaper": {
       "ok": true,
       "kind": "http",
       "url": "https://picsum.photos/1920/1080",
-      "latency_ms": 189,
+      "latency_ms": 485,
       "items": 0,
-      "detail": "HTTP 200 156408B",
+      "detail": "HTTP 200 66259B",
       "note": ""
+    },
+    "site:example_spider": {
+      "ok": false,
+      "kind": "http",
+      "url": "https://demo-jars.example.com/custom_spider.jar",
+      "latency_ms": 1067,
+      "items": 0,
+      "targets": [
+        {
+          "label": "jar",
+          "kind": "http",
+          "url": "https://demo-jars.example.com/custom_spider.jar",
+          "ok": false
+        }
+      ],
+      "detail": "[example_spider] jar 地址失败: URLError: <urlopen error [Errno -5] No address associated with hostname>"
     },
     "site:example_rule": {
       "ok": false,
       "kind": "http",
       "url": "https://demo-rules.example.com/rules/demo.js",
-      "latency_ms": 1077,
+      "latency_ms": 1078,
       "items": 0,
       "targets": [
         {
@@ -54,32 +70,16 @@
       "ok": false,
       "kind": "http",
       "url": "https://demo-parse.example.com/api.php/provide/vod/",
-      "latency_ms": 1081,
+      "latency_ms": 1080,
       "items": 0,
       "detail": "URLError: <urlopen error [Errno -5] No address associated with hostname>",
       "note": ""
-    },
-    "site:example_spider": {
-      "ok": false,
-      "kind": "http",
-      "url": "https://demo-jars.example.com/custom_spider.jar",
-      "latency_ms": 1093,
-      "items": 0,
-      "targets": [
-        {
-          "label": "jar",
-          "kind": "http",
-          "url": "https://demo-jars.example.com/custom_spider.jar",
-          "ok": false
-        }
-      ],
-      "detail": "[example_spider] jar 地址失败: URLError: <urlopen error [Errno -5] No address associated with hostname>"
     },
     "site:example_cms": {
       "ok": false,
       "kind": "cms",
       "url": "https://demo-cms.example.com/api.php/provide/vod/",
-      "latency_ms": 1052,
+      "latency_ms": 1057,
       "items": 0,
       "targets": [
         {
@@ -95,7 +95,7 @@
       "ok": false,
       "kind": "cms",
       "url": "https://demo-probe.example.com/api.php/provide/vod/",
-      "latency_ms": 1053,
+      "latency_ms": 1061,
       "items": 0,
       "targets": [
         {
