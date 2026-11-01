@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-31T20:38:10+00:00",
+  "generated_at": "2026-11-01T21:21:23+00:00",
   "counts": {
     "alive": 2,
     "grace": 0,
@@ -11,7 +11,7 @@
       "ok": true,
       "kind": "m3u8",
       "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8",
-      "latency_ms": 101,
+      "latency_ms": 80,
       "items": 24,
       "detail": "24 channel(s)",
       "note": ""
@@ -20,7 +20,7 @@
       "ok": true,
       "kind": "m3u8",
       "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-      "latency_ms": 131,
+      "latency_ms": 323,
       "items": 5,
       "detail": "5 channel(s)",
       "note": ""
@@ -29,25 +29,16 @@
       "ok": true,
       "kind": "http",
       "url": "https://picsum.photos/1920/1080",
-      "latency_ms": 607,
+      "latency_ms": 665,
       "items": 0,
-      "detail": "HTTP 200 136007B",
-      "note": ""
-    },
-    "parse:示例解析": {
-      "ok": false,
-      "kind": "http",
-      "url": "https://demo-parse.example.com/api.php/provide/vod/",
-      "latency_ms": 1070,
-      "items": 0,
-      "detail": "URLError: <urlopen error [Errno -5] No address associated with hostname>",
+      "detail": "HTTP 200 158473B",
       "note": ""
     },
     "site:example_rule": {
       "ok": false,
       "kind": "http",
       "url": "https://demo-rules.example.com/rules/demo.js",
-      "latency_ms": 1088,
+      "latency_ms": 1124,
       "items": 0,
       "targets": [
         {
@@ -59,11 +50,20 @@
       ],
       "detail": "[example_rule] ext 地址失败: URLError: <urlopen error [Errno -5] No address associated with hostname>"
     },
+    "parse:示例解析": {
+      "ok": false,
+      "kind": "http",
+      "url": "https://demo-parse.example.com/api.php/provide/vod/",
+      "latency_ms": 1128,
+      "items": 0,
+      "detail": "URLError: <urlopen error [Errno -5] No address associated with hostname>",
+      "note": ""
+    },
     "site:example_spider": {
       "ok": false,
       "kind": "http",
       "url": "https://demo-jars.example.com/custom_spider.jar",
-      "latency_ms": 1087,
+      "latency_ms": 1130,
       "items": 0,
       "targets": [
         {
@@ -79,7 +79,7 @@
       "ok": false,
       "kind": "cms",
       "url": "https://demo-probe.example.com/api.php/provide/vod/",
-      "latency_ms": 1055,
+      "latency_ms": 1104,
       "items": 0,
       "targets": [
         {
@@ -95,7 +95,7 @@
       "ok": false,
       "kind": "cms",
       "url": "https://demo-cms.example.com/api.php/provide/vod/",
-      "latency_ms": 1059,
+      "latency_ms": 1111,
       "items": 0,
       "targets": [
         {
