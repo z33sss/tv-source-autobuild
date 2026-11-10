@@ -1,21 +1,21 @@
 # 影视源每日检测报告
 
-- 生成时间：`2026-11-10T00:49:53+00:00`
+- 生成时间：`2026-11-10T22:29:52+00:00`
 - 存活：**2** / 暂存：**0** / 已剔除：**5** / 无法验证：**0**
 - 输出文件：`dist/tvbox.json`（0 站点，0 解析，2 直播）
 
 | 状态 | 名称 | 得分 | 延迟 | 条目 | 其它地址 | 说明 |
 | --- | --- | ---: | ---: | ---: | --- | --- |
-| ✅ alive | Apple bipbop | 109.56 | 44ms | 24 | — | 24 channel(s) |
-| ✅ alive | Mux 测试流 | 101.87 | 63ms | 5 | — | 5 channel(s) |
-| ❌ dead | example_rule | 0.0 | 1078ms | 0 | ext ❌ | [example_rule] ext 地址失败: URLError: <urlopen error [Errno -5] No address associated with hostname> |
-| ❌ dead | example_spider | 0.0 | 1090ms | 0 | jar ❌ | [example_spider] jar 地址失败: URLError: <urlopen error [Errno -5] No address associated with hostname> |
-| ❌ dead | example_cms | 0.0 | 1035ms | 0 | — | [example_cms] api 采集失败: URLError: <urlopen error [Errno -5] No address associated with hostname> |
-| ❌ dead | example_probe | 0.0 | 1037ms | 0 | probe ❌ | [example_probe] probe 采集失败: URLError: <urlopen error [Errno -5] No address associated with hostname> |
-| ❌ dead | 示例解析 | 0.0 | 1076ms | 0 | — | URLError: <urlopen error [Errno -5] No address associated with hostname> |
+| ✅ alive | Apple bipbop | 109.67 | 33ms | 24 | — | 24 channel(s) |
+| ✅ alive | Mux 测试流 | 102.17 | 33ms | 5 | — | 5 channel(s) |
+| ❌ dead | example_rule | 0.0 | 1053ms | 0 | ext ❌ | [example_rule] ext 地址失败: URLError: <urlopen error [Errno -5] No address associated with hostname> |
+| ❌ dead | example_spider | 0.0 | 1076ms | 0 | jar ❌ | [example_spider] jar 地址失败: URLError: <urlopen error [Errno -5] No address associated with hostname> |
+| ❌ dead | example_cms | 0.0 | 1045ms | 0 | — | [example_cms] api 采集失败: URLError: <urlopen error [Errno -5] No address associated with hostname> |
+| ❌ dead | example_probe | 0.0 | 1071ms | 0 | probe ❌ | [example_probe] probe 采集失败: URLError: <urlopen error [Errno -5] No address associated with hostname> |
+| ❌ dead | 示例解析 | 0.0 | 1064ms | 0 | — | URLError: <urlopen error [Errno -5] No address associated with hostname> |
 
 ### 公共资源（spider / 壁纸）
 
 | 状态 | 资源 | 说明 |
 | --- | --- | --- |
-| ✅ | wallpaper | HTTP 200 133482B |
+| ✅ | wallpaper | HTTP 200 105791B |
