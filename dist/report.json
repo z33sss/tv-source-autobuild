@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-13T22:49:08+00:00",
+  "generated_at": "2026-11-14T21:39:56+00:00",
   "counts": {
     "alive": 2,
     "grace": 0,
@@ -7,29 +7,29 @@
     "unverified": 0
   },
   "results": {
-    "live:Apple bipbop": {
-      "ok": true,
-      "kind": "m3u8",
-      "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8",
-      "latency_ms": 109,
-      "items": 24,
-      "detail": "24 channel(s)",
-      "note": ""
-    },
     "live:Mux 测试流": {
       "ok": true,
       "kind": "m3u8",
       "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-      "latency_ms": 167,
+      "latency_ms": 31,
       "items": 5,
       "detail": "5 channel(s)",
+      "note": ""
+    },
+    "live:Apple bipbop": {
+      "ok": true,
+      "kind": "m3u8",
+      "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8",
+      "latency_ms": 36,
+      "items": 24,
+      "detail": "24 channel(s)",
       "note": ""
     },
     "site:example_rule": {
       "ok": false,
       "kind": "http",
       "url": "https://demo-rules.example.com/rules/demo.js",
-      "latency_ms": 1127,
+      "latency_ms": 1058,
       "items": 0,
       "targets": [
         {
@@ -45,7 +45,7 @@
       "ok": false,
       "kind": "http",
       "url": "https://demo-jars.example.com/custom_spider.jar",
-      "latency_ms": 1152,
+      "latency_ms": 1059,
       "items": 0,
       "targets": [
         {
@@ -61,7 +61,7 @@
       "ok": false,
       "kind": "http",
       "url": "https://demo-parse.example.com/api.php/provide/vod/",
-      "latency_ms": 1160,
+      "latency_ms": 1063,
       "items": 0,
       "detail": "URLError: <urlopen error [Errno -5] No address associated with hostname>",
       "note": ""
@@ -70,7 +70,7 @@
       "ok": false,
       "kind": "cms",
       "url": "https://demo-cms.example.com/api.php/provide/vod/",
-      "latency_ms": 1120,
+      "latency_ms": 1043,
       "items": 0,
       "targets": [
         {
@@ -86,7 +86,7 @@
       "ok": false,
       "kind": "cms",
       "url": "https://demo-probe.example.com/api.php/provide/vod/",
-      "latency_ms": 1141,
+      "latency_ms": 1050,
       "items": 0,
       "targets": [
         {
@@ -102,7 +102,7 @@
       "ok": false,
       "kind": "http",
       "url": "https://picsum.photos/1920/1080",
-      "latency_ms": 41441,
+      "latency_ms": 41109,
       "items": 0,
       "detail": "TimeoutError: The read operation timed out",
       "note": ""
